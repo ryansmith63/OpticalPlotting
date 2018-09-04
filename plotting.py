@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from gaussian_fit import gaussian_get_params
 
 # takes a single run, list of runs, or list of lists of runs. For a list of lists, it gives each inner list the same color and label.
-def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False, xlabel="", ylabel="", figure=True, smooth=False, legend_loc=0, include_legend=True):
+def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False, xlabel="", ylabel="", figure=True, smooth=False, legend_loc=0, include_legend=True, linestyle="-", log=False):
 	if type(runs) != type([]): # if runs is a single run
 		runs = [runs] # make it a list
 
@@ -18,9 +18,10 @@ def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False
 	color_list = ["r", "g", "b", "m", "c", "y", "k", "lightpink", "darksalmon", "slategray", "plum", "lightcoral", "indigo", "darkorange"]
 
 	minx = 1000
-	maxx = -100
+	maxx = -1000
 
-	maxy = 0
+	miny = 1000
+	maxy = -1000
 
 	if nested == False:
 
@@ -28,25 +29,24 @@ def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False
 			run = runs[i]
 			if rot:
 				x = run.rot_angles
-				minx = np.min([minx, np.min(x)])
-				maxx = np.max([maxx, np.max(x)])
 			else:
 				x = run.angles
-				minx = np.min([minx, np.min(x)])
-				maxx = np.max([maxx, np.max(x)])
+			minx = np.min([minx, np.min(x)])
+			maxx = np.max([maxx, np.max(x)])
 			# voltage means use absolute intensities, not normalized ones
 			if voltage:
 				y = run.intensities
-				maxy = np.max([maxy, np.max(y)])
 			else:
 				y = run.relative_intensities
-				maxy = np.max([maxy, np.max(y)])
+			maxy = np.max([maxy, np.max(y)])
+			miny = np.min([miny, np.min(y)])
+
 			# smooth means a line will be plotted, not just points
 			if smooth:
 				if labels:
-					plt.plot(x, y, c=color_list[i], label=labels[i])
+					plt.plot(x, y, c=color_list[i], label=labels[i], linestyle=linestyle)
 				else:
-					plt.plot(x, y, c=color_list[i], label=run.name)
+					plt.plot(x, y, c=color_list[i], label=run.name, linestyle=linestyle)
 			else:
 				if labels:
 					plt.scatter(x, y, marker="x", c=color_list[i], s=5, label=labels[i])
@@ -60,26 +60,25 @@ def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False
 				# rot means that angles are relative to the rotation stage rather than to the sample normal
 				if rot:
 					x = run.rot_angles
-					minx = np.min([minx, np.min(x)])
-					maxx = np.max([maxx, np.max(x)])
 				else:
 					x = run.angles
-					minx = np.min([minx, np.min(x)])
-					maxx = np.max([maxx, np.max(x)])
+				minx = np.min([minx, np.min(x)])
+				maxx = np.max([maxx, np.max(x)])
 
 				if voltage:
 					y = run.intensities
-					maxy = np.max([maxy, np.max(y)])
 				else:
 					y = run.relative_intensities
-					maxy = np.max([maxy, np.max(y)])
+				maxy = np.max([maxy, np.max(y)])
+				miny = np.min([miny, np.min(y)])
+
 
 				if j == 0: # make label
 					if smooth:
 						if labels:
-							plt.plot(x, y, c=color_list[i], label=labels[i])
+							plt.plot(x, y, c=color_list[i], label=labels[i], linestyle=linestyle)
 						else:
-							plt.plot(x, y, c=color_list[i], label=run.name)
+							plt.plot(x, y, c=color_list[i], label=run.name, linestyle=linestyle)
 					else:
 						if labels:
 							plt.scatter(x, y, marker="x", c=color_list[i], s=5, label=labels[i])
@@ -104,12 +103,15 @@ def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False
 		plt.ylabel(ylabel)
 	else:
 		if voltage:
-			plt.ylabel("intensity (Volts)")
+			plt.ylabel("rate (Hz)")
 		else:
-			plt.ylabel("intensity (flux/str)/(input flux)")
-		
+			plt.ylabel("intensity (reflected rate/str)/(incident rate)")
+	if log:
+		plt.ylim(0.5 * miny, 1.1 * maxy)
+		plt.yscale("log")
+	else:
+		plt.ylim(0, 1.1 * maxy)
 	plt.xlim(minx, maxx)
-	plt.ylim(0, 1.1 * maxy)
 
 	plt.title(title)
 	if include_legend:
