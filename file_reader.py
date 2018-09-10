@@ -26,6 +26,12 @@ class Run:
 
 		self.rot_angles = [180. - self.incidentangle - a for a in self.angles]
 
+		if self.substance[:3] == "vac" or self.substance[:3] == "Vac" or self.substance[:3] == "Air" or self.substance[:3] == "air":
+			self.n = 1.
+
+		# independent_variables_array is a list where each element is of the form [theta_r_in_degrees, phi_r_in_degrees, theta_i_in_degrees, n_0, polarization]
+		self.independent_variables_array = [[angle, 0, self.incidentangle, self.n, 0.5] for angle in self.angles]
+
 		
 
 def relative_intensity(intensity, incidentpower):
@@ -39,4 +45,18 @@ def relative_intensity(intensity, incidentpower):
 	intensity_factor = 1. / (photodiode_solid_angle * incidentpower)
 	
 	return intensity_factor * intensity
+
+def get_independent_variables_and_relative_intensities(runs):
+	independent_variables_array = []
+	relative_intensities = []
+
+	for run in runs:
+		for i in range(len(run.relative_intensities)):
+			independent_variables_array.append(run.independent_variables_array[i])
+			relative_intensities.append(run.relative_intensities[i])
+	return [independent_variables_array, relative_intensities]
+
+
+
+
 

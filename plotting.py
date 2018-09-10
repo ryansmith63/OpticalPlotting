@@ -1,9 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from gaussian_fit import gaussian_get_params
+from TSTR_fit_new import BRIDF_plotter
 
 # takes a single run, list of runs, or list of lists of runs. For a list of lists, it gives each inner list the same color and label.
-def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False, xlabel="", ylabel="", figure=True, smooth=False, legend_loc=0, include_legend=True, linestyle="-", log=False):
+def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False, xlabel="", ylabel="", figure=True, smooth=True, legend_loc=0, include_legend=True, linestyle="-", log=False):
 	if type(runs) != type([]): # if runs is a single run
 		runs = [runs] # make it a list
 
@@ -126,6 +127,14 @@ def plot_gaussian_fit(run, mu=1000):
 
 	label = "gaussian fit\nA: " + str(A) + "\nB: " + str(B) + "\nsigma: " + str(sigma) + "\nmu: " + str(mu)
 	plot_fit_by_params(min(x), max(x), params, label)
+
+def plot_TSTR_fit(theta_i, n, fit_params, label="", color=""):
+	x = np.linspace(0, 85, 1000)
+	if label:
+		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params), label=label, color=color)
+	else:
+		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params), color=color)
+	plt.legend()
 
 
 
