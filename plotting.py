@@ -4,7 +4,7 @@ from gaussian_fit import gaussian_get_params
 from TSTR_fit_new import BRIDF_plotter
 
 # takes a single run, list of runs, or list of lists of runs. For a list of lists, it gives each inner list the same color and label.
-def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False, xlabel="", ylabel="", figure=True, smooth=True, legend_loc=0, include_legend=True, linestyle="-", log=False):
+def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False, xlabel="", ylabel="", figure=True, smooth=False, legend_loc=0, include_legend=True, linestyle="-", log=False, errorbars=True):
 	if type(runs) != type([]): # if runs is a single run
 		runs = [runs] # make it a list
 
@@ -37,22 +37,19 @@ def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False
 			# voltage means use absolute intensities, not normalized ones
 			if voltage:
 				y = run.intensities
+				yerr = run.intensity_std
 			else:
 				y = run.relative_intensities
+				yerr = run.relative_std
 			maxy = np.max([maxy, np.max(y)])
 			miny = np.min([miny, np.min(y)])
 
+			if labels: label=labels[i]
+			else: label=run.name
 			# smooth means a line will be plotted, not just points
-			if smooth:
-				if labels:
-					plt.plot(x, y, c=color_list[i], label=labels[i], linestyle=linestyle)
-				else:
-					plt.plot(x, y, c=color_list[i], label=run.name, linestyle=linestyle)
-			else:
-				if labels:
-					plt.scatter(x, y, marker="x", c=color_list[i], s=5, label=labels[i])
-				else:
-					plt.scatter(x, y, marker="x", c=color_list[i], s=5, label=run.name)
+			if smooth: plt.plot(x, y, c=color_list[i], linestyle=linestyle)
+			if errorbars: plt.errorbar(x, y, yerr=yerr, fmt="o", c=color_list[i], ms=2, capsize=2, label=label)
+			else: plt.scatter(x, y, marker="x", c=color_list[i], s=5, label=label)
 	else:
 		for i in range(len(runs)):
 			inner_runs = runs[i]
@@ -73,24 +70,16 @@ def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False
 				maxy = np.max([maxy, np.max(y)])
 				miny = np.min([miny, np.min(y)])
 
-
+				if labels: label=labels[i]
+				else: label=run.name
 				if j == 0: # make label
-					if smooth:
-						if labels:
-							plt.plot(x, y, c=color_list[i], label=labels[i], linestyle=linestyle)
-						else:
-							plt.plot(x, y, c=color_list[i], label=run.name, linestyle=linestyle)
-					else:
-						if labels:
-							plt.scatter(x, y, marker="x", c=color_list[i], s=5, label=labels[i])
-						else:
-							plt.scatter(x, y, marker="x", c=color_list[i], s=5, label=run.name)
+					if smooth: plt.plot(x, y, c=color_list[i], linestyle=linestyle)
+					if errorbars: plt.errorbar(x, y, yerr=yerr, fmt="o", c=color_list[i], ms=2, capsize=2, label=label)
+					else: plt.scatter(x, y, marker="x", c=color_list[i], s=5, label=label)
 				else:
-					if smooth:
-						plt.plot(x, y, c=color_list[i])
-						
-					else:
-						plt.scatter(x, y, marker="x", c=color_list[i], s=5)
+					if smooth: plt.plot(x, y, c=color_list[i])	
+					if errorbars: plt.errorbar(x, y, yerr=yerr, fmt="o", c=color_list[i], ms=2, capsize=2)
+					else: plt.scatter(x, y, marker="x", c=color_list[i], s=5)
 
 	if xlabel:
 		plt.xlabel(xlabel)
@@ -128,12 +117,16 @@ def plot_gaussian_fit(run, mu=1000):
 	label = "gaussian fit\nA: " + str(A) + "\nB: " + str(B) + "\nsigma: " + str(sigma) + "\nmu: " + str(mu)
 	plot_fit_by_params(min(x), max(x), params, label)
 
-def plot_TSTR_fit(theta_i, n, fit_params, label="", color=""):
-	x = np.linspace(0, 85, 1000)
+def plot_TSTR_fit(theta_i, n, fit_params, label="", color="", average_angle=0, precision=-1):
+	min_angle = 0
+	max_angle = 85
+	d_theta = 1
+	n_angles = (max_angle-min_angle)/d_theta+1
+	x = np.linspace(min_angle, max_angle, n_angles)
 	if label:
-		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params), label=label, color=color)
+		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision), label=label, color=color)
 	else:
-		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params), color=color)
+		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision), color=color)
 	plt.legend()
 
 
