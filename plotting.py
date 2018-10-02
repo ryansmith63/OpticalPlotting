@@ -117,16 +117,17 @@ def plot_gaussian_fit(run, mu=1000):
 	label = "gaussian fit\nA: " + str(A) + "\nB: " + str(B) + "\nsigma: " + str(sigma) + "\nmu: " + str(mu)
 	plot_fit_by_params(min(x), max(x), params, label)
 
-def plot_TSTR_fit(theta_i, n, fit_params, label="", color="", average_angle=0, precision=-1):
+def plot_TSTR_fit(theta_i, n, fit_params, label="", color="", average_angle=0, precision=-1, sigma_theta_i=2.0):
 	min_angle = 0
 	max_angle = 85
 	d_theta = 1
 	n_angles = (max_angle-min_angle)/d_theta+1
 	x = np.linspace(min_angle, max_angle, n_angles)
 	if label:
-		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision), label=label, color=color)
+		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i), label=label, color=color)
 	else:
-		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision), color=color)
+		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i), color=color)
+		#print(BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision))
 	plt.legend()
 
 

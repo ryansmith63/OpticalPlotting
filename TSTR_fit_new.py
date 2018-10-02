@@ -112,7 +112,7 @@ def H(x):
 # All angles are in degrees
 # average_angle sets aperture size (diameter) to average over (no avg if 0)
 # precision sets grid spacing for 2D averaging (1D average used if < 0)
-def BRIDF_plotter(theta_r_in_degrees_array, phi_r_in_degrees, theta_i_in_degrees, n_0, polarization, parameters, average_angle=0, precision=-1):
+def BRIDF_plotter(theta_r_in_degrees_array, phi_r_in_degrees, theta_i_in_degrees, n_0, polarization, parameters, average_angle=0, precision=-1, sigma_theta_i=2):
     phi_r = phi_r_in_degrees * np.pi / 180
     theta_i = theta_i_in_degrees * np.pi / 180
     precision_rad = precision * np.pi / 180
@@ -133,7 +133,7 @@ def BRIDF_plotter(theta_r_in_degrees_array, phi_r_in_degrees, theta_i_in_degrees
         if len(parameters)>3: log_K = np.log(parameters[3])
         else: log_K = None
         for theta_r_in_degrees in theta_r_in_degrees_array: # For each point, calculate the BRIDF along a grid nearby and average it
-            avgs.append(average_BRIDF([theta_r_in_degrees,phi_r_in_degrees,theta_i_in_degrees,n_0,polarization], log_rho_L, log_n_minus_one, log_gamma, log_K, average_angle=average_angle, precision=precision))
+            avgs.append(average_BRIDF([theta_r_in_degrees,phi_r_in_degrees,theta_i_in_degrees,n_0,polarization], log_rho_L, log_n_minus_one, log_gamma, log_K, average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i))
         return avgs
 
 # Takes a set of viewing angles and intensities and returns the average, for each point, of adjacent points w/in +/- angle/2
@@ -333,6 +333,13 @@ def unvectorized_fitter_with_angle(independent_variables_without_angle, theta_i,
     return BRIDF(theta_r, phi_r, theta_i, n_0, polarization, parameters, precision=precision)
 
 
+# gets weights to use for the gaussian distribution of incident angles
+# x is the array of incident angles to get weights for
+# outputs weights that should correspond to a list of N points separated by 
+def get_relative_gaussian_weights(x, mu, sigma):
+    return [np.exp(-(x_ - mu) * (x_ - mu) / (2 * sigma * sigma)) for x_ in x]
+
+
 def average_BRIDF(independent_variables, log_rho_L, log_n_minus_one, log_gamma, log_K, average_angle, precision=0.25, sigma_theta_i=2.0):
     # For a single point, calculate BRIDF values on a grid within a circle of diameter average_angle from center
     # and average them all; grid spacing is given by precision; all angles in degrees
@@ -343,15 +350,20 @@ def average_BRIDF(independent_variables, log_rho_L, log_n_minus_one, log_gamma, 
     theta_r0 = independent_variables[0]
     phi_r0 = independent_variables[1]
     theta_i = independent_variables[2]
+    theta_i_scalar = theta_i
+    
     #print(theta_i,theta_r0,phi_r0)
     if sigma_theta_i > 0: # Expand theta_i to multiple values, drawn from a distribution centered on theta_i with width +/- sigma_theta_i
-        n_rand = 10 # number of random values to draw
+        n_rand = 20 # number of random values to draw
         #theta_i_prime = np.repeat(theta_i, n_rand)
         #delta_theta_i = np.random.normal(scale=sigma_theta_i, size=n_rand)
         eps=0.0001
-        delta_theta_i = np.linspace(-sigma_theta_i-eps,sigma_theta_i+eps,n_rand) # offset by eps to avoid errors related to floating point precision
+        delta_theta_i = np.linspace(-3 * sigma_theta_i-eps,sigma_theta_i * 3+eps,n_rand) # offset by eps to avoid errors related to floating point precision
         #print(delta_theta_i)
         theta_i = theta_i+delta_theta_i
+    
+
+
     # Make a grid of points in theta_r and phi_r
     #print(average_angle)
     theta_r_list = np.linspace(theta_r0-average_angle/2.,theta_r0+average_angle/2.,average_angle/precision+1)
@@ -372,7 +384,8 @@ def average_BRIDF(independent_variables, log_rho_L, log_n_minus_one, log_gamma, 
         theta_i=ti[in_circle]
         #print(theta_i[:25])
     #print(tt[:25],pp[:25])
-    return np.mean(unvectorized_fitter([tt,pp,theta_i]+list(independent_variables[3:]),log_rho_L, log_n_minus_one, log_gamma, log_K, precision=precision))
+    weights = get_relative_gaussian_weights(theta_i, theta_i_scalar, sigma_theta_i)
+    return np.sum(weights * unvectorized_fitter([tt,pp,theta_i]+list(independent_variables[3:]),log_rho_L, log_n_minus_one, log_gamma, log_K, precision=precision)) / np.sum(weights)
 
     
 # takes arrays of independent variable lists; last two independent variables are precision and average_angle (assumed to be the same for all points)

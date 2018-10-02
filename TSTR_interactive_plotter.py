@@ -5,7 +5,8 @@ from plotting import plot_runs, plot_TSTR_fit
 from TSTR_fit_new import fit_parameters, fit_parameters_and_angle, BRIDF_plotter, reflectance_diffuse, reflectance_specular, BRIDF
 import time
 
-path = "vuv_height_comparison_and_first_data\\M18 turn polished\\center of sample\\"#\\M18 turn\\center of sample\\"
+path = "vuv_height_comparison_and_first_data/M18 turn polished/center of sample/"#\\M18 turn\\center of sample\\"
+#path = "vuv_height_comparison_and_first_data\\M18 turn polished\\center of sample\\"#\\M18 turn\\center of sample\\"
 m18pol30 = Run(path + "2018_08_30__11_23_42.txt") 
 m18pol45 = Run(path + "2018_08_30__11_29_08.txt") 
 m18pol60 = Run(path + "2018_08_30__11_34_35.txt") 
@@ -37,12 +38,12 @@ labels=["30 degrees", "45 degrees", "60 degrees", "75 degrees"]#["75 degrees"]#
 # Plot BRIDF data
 sample_name="M18 turn polished"
 plot_runs(runs, title=sample_name+", 175nm", log=True, labels=labels, errorbars=True)
-plt.show()
+#plt.show()
 
 # In a loop: ask for input params, plot model overlaid on data
 get_input=True
-params=[.24,1.27,0.1,5.0]
-param_names=["rho_L","n","gamma","K"]
+params=[.24,1.27,0.1,5.0,2.0]
+param_names=["rho_L","n","gamma","K","sigma_theta_i"]
 fig_num=0
 while get_input:
     fig_num += 1
@@ -55,13 +56,15 @@ while get_input:
             except ValueError: 
                 if param == '': break
                 print("Error: input a number")
+    sigma_theta_i = params[-1]
+    fit_params = params[:-1]
     #plt.figure(fig_num)
     plot_runs(runs, title=sample_name+", 175nm", log=True, labels=labels, errorbars=True)
 	# Trying setting incident angles by hand, for better fits to specular spike
-    plot_TSTR_fit(29., 1., params, label="fitted", color="k", average_angle=4., precision=0.25)
-    plot_TSTR_fit(42., 1., params, color="k", average_angle=4., precision=0.25)
-    plot_TSTR_fit(60., 1., params, color="k", average_angle=4., precision=0.25)
-    plot_TSTR_fit(77., 1., params, color="k", average_angle=4., precision=0.25)
-    plt.text(0.1,0.1,r"Fit: $\rho_L$={0:.3f}, n={1:.2f}, $\gamma$={2:.3f}, K={3:.3f}".format(*params),transform=plt.gca().transAxes,fontsize=13)
+    plot_TSTR_fit(29., 1., fit_params, label="fitted", color="k", average_angle=4., precision=0.25)
+    plot_TSTR_fit(42., 1., fit_params, color="k", average_angle=4., precision=0.25)
+    plot_TSTR_fit(60., 1., fit_params, color="k", average_angle=4., precision=0.25)
+    plot_TSTR_fit(77., 1., fit_params, color="k", average_angle=4., precision=0.25)
+    plt.text(0.05,0.1,r"Fit: $\rho_L$={0:.3f}, n={1:.2f}, $\gamma$={2:.3f}, K={3:.3f}, $\sigma (\theta_i)$={4:.3f}".format(*params),transform=plt.gca().transAxes,fontsize=11)
     plt.show()
     get_input=input("New parameters? (y/n) ").lower()=='y'
