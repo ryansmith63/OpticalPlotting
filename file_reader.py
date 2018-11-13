@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#path = "/Users/leehagaman/Desktop/OpticalPlotting/"
-path = "C:\\Users\\swkra\\OneDrive\\Documents\\GitHub\\OpticalPlotting\\"
+path = "/Users/leehagaman/Desktop/OpticalPlotting/"
+#path = "C:\\Users\\swkra\\OneDrive\\Documents\\GitHub\\OpticalPlotting\\"
 
 class Run:
 	def __init__(self, filename):
@@ -10,7 +10,8 @@ class Run:
 		lines = file.readlines()
 		data = np.loadtxt(path + filename, skiprows=12)
 		self.angles = [datum[0] for datum in data]
-		bkg = 200 # constant background from e.g. dark rate
+		bkg = 50 # constant background from e.g. dark rate
+		# chosen to be slightly less than lowest rate during background measurement in LXe
 		self.intensities = [datum[1]-bkg for datum in data]
 		self.intensity_std = [datum[2] for datum in data]
 
@@ -33,6 +34,9 @@ class Run:
 
 		if self.substance[:3].lower() == "vac" or self.substance[:3].lower() == "air":
 			self.n = 1.
+		if self.substance[:3].lower() == "lxe":
+			self.n = 1.69
+			# from https://arxiv.org/pdf/physics/0307044
 
 		# independent_variables_array is a list where each element is of the form [theta_r_in_degrees, phi_r_in_degrees, theta_i_in_degrees, n_0, polarization]
 		self.independent_variables_array = [[angle, 0, self.incidentangle, self.n, 0.5] for angle in self.angles]

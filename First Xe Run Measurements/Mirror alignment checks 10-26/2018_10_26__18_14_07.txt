@@ -1,0 +1,20 @@
+Data Saved Successfully
+Date and Time: 2018_10_26__18_14_07
+Name: Mirror alignment tests
+Description: slit at 1.8, mirror alignment checks, mirror in third from top sample spot,changed dial at mirror test to 39 (number from 90 degree calibration procedure), larger step size to find peak
+Substance: air
+Sample ID: -2
+Preamp Sensitivity: 100.000000
+Incident Angle: 45.000000
+Incident Power: 537857.000000
+Wavelength: 500.000000
+Temperature: 300.000000
+Pressure: 1.013000
+55.000000	94291.608770	3675.760063
+54.000000	1763.669993	69.925692
+53.000000	1191.759631	37.335678
+52.000000	886.818144	19.419933
+51.000000	731.033220	24.446708
+50.000000	603.963809	12.271156
+49.000000	587.156970	17.413332
+48.000000	501.738369	13.165318

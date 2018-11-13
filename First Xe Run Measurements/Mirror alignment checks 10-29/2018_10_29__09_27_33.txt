@@ -1,0 +1,24 @@
+Data Saved Successfully
+Date and Time: 2018_10_29__09_27_33
+Name: Mirror alignment checks
+Description: PMT height set to 1.035"; checking air alignments from yesterday with monochromator; slit at 1.04, mirror alignment checks, UV enhanced mirror at top of rack
+Substance: vacuum
+Sample ID: -2
+Preamp Sensitivity: 100.000000
+Incident Angle: 45.000000
+Incident Power: 932465.000000
+Wavelength: 405.000000
+Temperature: 300.000000
+Pressure: 1.013000
+55.000000	242.247175	28.085462
+54.750000	195.261745	7.146774
+54.500000	179.659172	4.292723
+54.250000	177.302614	4.809157
+54.000000	166.895171	1.442014
+53.750000	171.558058	2.026665
+53.500000	153.872943	2.733058
+53.250000	157.529710	1.881651
+53.000000	164.549156	2.202342
+52.750000	159.509463	2.834226
+52.500000	159.123839	3.495506
+52.250000	155.691634	1.942597

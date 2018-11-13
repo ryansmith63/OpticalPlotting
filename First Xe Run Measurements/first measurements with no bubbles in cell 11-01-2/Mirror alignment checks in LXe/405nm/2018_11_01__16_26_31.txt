@@ -1,0 +1,23 @@
+Data Saved Successfully
+Date and Time: 2018_11_01__16_26_31
+Name: Mirror alignment check, 405 nm, 60 deg
+Description: Mirror alignment checks. Circulating at ~3 slpm (on flow meter), no bubbles were visible when viewport was uncovered. PMT 0 shifted to -1.75 deg (rotation stage) relative to prior measurements in vacuum, e.g. mirror alignment. Slit at 1.33.
+Substance: LXe
+Sample ID: -2
+Preamp Sensitivity: 100.000000
+Incident Angle: 60.000000
+Incident Power: 1197450.000000
+Wavelength: 405.000000
+Temperature: 185.000000
+Pressure: 1.020000
+70.000000	707.680336	25.626350
+68.000000	718.732696	18.399809
+66.000000	854.216248	20.506920
+64.000000	403796.410316	16092.366452
+62.000000	1067643.658679	39950.846758
+60.000000	610256.527124	21139.822363
+58.000000	22744.582555	925.458889
+56.000000	651.302189	48.886303
+54.000000	496.675179	30.541706
+52.000000	466.464451	9.799199
+50.000000	480.622422	8.629609

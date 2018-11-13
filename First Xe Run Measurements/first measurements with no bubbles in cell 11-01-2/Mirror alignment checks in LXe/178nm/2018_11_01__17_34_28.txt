@@ -1,0 +1,20 @@
+Data Saved Successfully
+Date and Time: 2018_11_01__17_34_28
+Name: Mirror alignment checks, 178 nm, 45 deg
+Description: Mirror alignment checks. Circulating at ~2 slpm (on flow meter), no bubbles were visible when viewport was uncovered. Slit at 0.74.
+Substance: LXe
+Sample ID: -1
+Preamp Sensitivity: 100.000000
+Incident Angle: 45.000000
+Incident Power: 999961.000000
+Wavelength: 178.000000
+Temperature: 185.000000
+Pressure: 0.980000
+50.000000	148.738473	19.694559
+49.750000	107.065416	3.030226
+49.500000	88.870829	1.476349
+49.250000	83.710685	1.787413
+49.000000	80.652651	1.259322
+48.750000	80.272555	0.698456
+48.500000	81.618672	0.720861
+48.250000	78.888059	1.485277

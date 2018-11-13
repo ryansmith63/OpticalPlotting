@@ -1,0 +1,23 @@
+Data Saved Successfully
+Date and Time: 2018_10_28__21_21_22
+Name: Mirror alignment checks, 60 deg
+Description: PMT height set to 1.035"; outer vacuum broken, letting light into collimator through top of monochromator; slit at 1.04, mirror alignment checks, UV enhanced mirror at top of rack
+Substance: air
+Sample ID: -2
+Preamp Sensitivity: 100.000000
+Incident Angle: 60.000000
+Incident Power: 26600.000000
+Wavelength: -1.000000
+Temperature: 300.000000
+Pressure: 1.013000
+65.000000	21596.171527	619.723154
+64.750000	21871.550719	878.017916
+64.500000	22158.736709	833.616736
+64.250000	21588.082174	827.790368
+64.000000	20709.070034	848.899879
+63.750000	19375.815757	723.397067
+63.500000	17312.591580	692.483616
+63.250000	15695.530070	542.219838
+63.000000	13475.874295	463.880907
+62.750000	10929.054041	385.487344
+62.500000	8385.812805	355.100922

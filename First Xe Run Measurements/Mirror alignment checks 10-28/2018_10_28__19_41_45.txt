@@ -1,0 +1,19 @@
+Data Saved Successfully
+Date and Time: 2018_10_28__19_41_45
+Name: Mirror alignment checks
+Description: samples replaced, mirror cleaned, checking if pattern of decreasing power with lower angles is still there; slit at 1.04, mirror alignment checks, UV enhanced mirror at top of rack
+Substance: vacuum
+Sample ID: -2
+Preamp Sensitivity: 100.000000
+Incident Angle: 45.000000
+Incident Power: -1.000000
+Wavelength: 405.000000
+Temperature: 300.000000
+Pressure: 1.013000
+55.000000	326796.868759	13881.651656
+54.000000	561063.576368	21922.161907
+53.000000	729024.538563	31881.454363
+52.000000	531350.162716	19948.854842
+51.000000	291176.386316	9407.947402
+50.000000	45156.237560	1817.346097
+49.000000	2775.934537	76.560121

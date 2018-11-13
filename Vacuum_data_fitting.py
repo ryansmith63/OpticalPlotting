@@ -5,7 +5,8 @@ from plotting import plot_runs, plot_TSTR_fit
 from TSTR_fit_new import fit_parameters, fit_parameters_and_angle, BRIDF_plotter, reflectance_diffuse, reflectance_specular, BRIDF
 import time
 
-path = "vuv_height_comparison_and_first_data\\M18 turn polished\\center of sample\\"#\\M18 turn\\center of sample\\"
+#path = "vuv_height_comparison_and_first_data\\M18 turn polished\\center of sample\\"#\\M18 turn\\center of sample\\"
+path = "vuv_height_comparison_and_first_data/M18 turn polished/center of sample/"
 m18pol30 = Run(path + "2018_08_30__11_23_42.txt") 
 m18pol45 = Run(path + "2018_08_30__11_29_08.txt") 
 m18pol60 = Run(path + "2018_08_30__11_34_35.txt") 
