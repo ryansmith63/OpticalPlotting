@@ -4,7 +4,7 @@ from gaussian_fit import gaussian_get_params
 from TSTR_fit_new import BRIDF_plotter
 
 # takes a single run, list of runs, or list of lists of runs. For a list of lists, it gives each inner list the same color and label.
-def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False, xlabel="", ylabel="", figure=True, smooth=False, legend_loc=0, include_legend=True, linestyle="-", log=False, errorbars=True):
+def plot_runs(runs, title=False, rot=False, voltage=False, labels=False, label=False, show=False, xlabel="", ylabel="", figure=True, smooth=False, legend_loc=0, include_legend=True, linestyle="-", log=False, errorbars=True, color=""):
 	if type(runs) != type([]): # if runs is a single run
 		runs = [runs] # make it a list
 
@@ -16,7 +16,10 @@ def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False
 	if figure:
 		plt.figure()
 
-	color_list = ["r", "g", "b", "m", "c", "y", "k", "lightpink", "darksalmon", "slategray", "plum", "lightcoral", "indigo", "darkorange"]
+	if color:
+		color_list = [color]*10
+	else:
+		color_list = ["r", "g", "b", "m", "c", "y", "k", "lightpink", "darksalmon", "slategray", "plum", "lightcoral", "indigo", "darkorange"]
 
 	minx = 1000
 	maxx = -1000
@@ -24,62 +27,47 @@ def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False
 	miny = 1000
 	maxy = -1000
 
-	if nested == False:
-
-		for i in range(len(runs)):
-			run = runs[i]
-			if rot:
-				x = run.rot_angles
-			else:
-				x = run.angles
-			minx = np.min([minx, np.min(x)])
-			maxx = np.max([maxx, np.max(x)])
-			# voltage means use absolute intensities, not normalized ones
-			if voltage:
-				y = run.intensities
-				yerr = run.intensity_std
-			else:
-				y = run.relative_intensities
-				yerr = run.relative_std
-			maxy = np.max([maxy, np.max(y)])
-			miny = np.min([miny, np.min(y)])
-
-			if labels: label=labels[i]
-			else: label=run.name
-			# smooth means a line will be plotted, not just points
-			if smooth: plt.plot(x, y, c=color_list[i], linestyle=linestyle)
-			if errorbars: plt.errorbar(x, y, yerr=yerr, fmt="o", c=color_list[i], ms=2, capsize=2, label=label)
-			else: plt.scatter(x, y, marker="x", c=color_list[i], s=5, label=label)
+	if nested:
+		flattened_runs = sum(runs)
 	else:
-		for i in range(len(runs)):
-			inner_runs = runs[i]
-			for j in range(len(inner_runs)):
-				run = inner_runs[j]
-				# rot means that angles are relative to the rotation stage rather than to the sample normal
-				if rot:
-					x = run.rot_angles
-				else:
-					x = run.angles
-				minx = np.min([minx, np.min(x)])
-				maxx = np.max([maxx, np.max(x)])
+		flattened_runs = runs
 
-				if voltage:
-					y = run.intensities
-				else:
-					y = run.relative_intensities
-				maxy = np.max([maxy, np.max(y)])
-				miny = np.min([miny, np.min(y)])
-
-				if labels: label=labels[i]
-				else: label=run.name
-				if j == 0: # make label
-					if smooth: plt.plot(x, y, c=color_list[i], linestyle=linestyle)
-					if errorbars: plt.errorbar(x, y, yerr=yerr, fmt="o", c=color_list[i], ms=2, capsize=2, label=label)
-					else: plt.scatter(x, y, marker="x", c=color_list[i], s=5, label=label)
-				else:
-					if smooth: plt.plot(x, y, c=color_list[i])	
-					if errorbars: plt.errorbar(x, y, yerr=yerr, fmt="o", c=color_list[i], ms=2, capsize=2)
-					else: plt.scatter(x, y, marker="x", c=color_list[i], s=5)
+	for i in range(len(flattened_runs)):
+		run = flattened_runs[i]
+		# rot means that angles are relative to the rotation stage rather than to the sample normal
+		if rot:
+			x = run.rot_angles
+		else:
+			x = run.angles
+		minx = np.min([minx, np.min(x)])
+		maxx = np.max([maxx, np.max(x)])
+		# voltage means use absolute intensities, not normalized ones
+		if voltage:
+			y = run.intensities
+			yerr = run.intensity_std
+		else:
+			y = run.relative_intensities
+			yerr = run.relative_std
+		maxy = np.max([maxy, np.max(y)])
+		miny = np.min([miny, np.min(y)])
+		if label: #use only one label, only label first run, designed for all runs being the same color
+			if i != 0:
+				label=False
+		if labels:
+			label=labels[i]
+		# smooth means a line will also be plotted, not just points
+		if smooth: 
+			plt.plot(x, y, c=color_list[i], linestyle=linestyle)
+		if errorbars: 
+			if label:
+				plt.errorbar(x, y, yerr=yerr, fmt="o", c=color_list[i], ms=2, capsize=2, label=label)
+			else:
+				plt.errorbar(x, y, yerr=yerr, fmt="o", c=color_list[i], ms=2, capsize=2)
+		else: 
+			if label:
+				plt.scatter(x, y, marker="x", c=color_list[i], s=5, label=label)
+			else:
+				plt.scatter(x, y, marker="x", c=color_list[i], s=5)
 
 	if xlabel:
 		plt.xlabel(xlabel)
@@ -102,8 +90,8 @@ def plot_runs(runs, title="", rot=False, voltage=False, labels=False, show=False
 	else:
 		plt.ylim(0, 1.1 * maxy)
 	plt.xlim(minx, maxx)
-
-	plt.title(title)
+	if title:
+		plt.title(title)
 	if include_legend:
 		plt.legend(loc=legend_loc)
 	if show:
@@ -117,6 +105,8 @@ def plot_gaussian_fit(run, mu=1000):
 	label = "gaussian fit\nA: " + str(A) + "\nB: " + str(B) + "\nsigma: " + str(sigma) + "\nmu: " + str(mu)
 	plot_fit_by_params(min(x), max(x), params, label)
 
+
+#works with or without spike
 def plot_TSTR_fit(theta_i, n, fit_params, label="", color="", average_angle=0, precision=-1, sigma_theta_i=2.0):
 	min_angle = 0
 	max_angle = 85
@@ -127,7 +117,11 @@ def plot_TSTR_fit(theta_i, n, fit_params, label="", color="", average_angle=0, p
 		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i), label=label, color=color)
 	else:
 		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i), color=color)
-		#print(BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision))
+	if len(fit_params) == 3:
+		plt.text(0.05,0.05,r"Fit: $\rho_L$={0:.3f}, n={1:.2f}, $\gamma$={2:.3f}".format(*fit_params),transform=plt.gca().transAxes,fontsize=13)
+	else:
+		plt.text(0.05,0.05,r"Fit: $\rho_L$={0:.3f}, n={1:.2f}, $\gamma$={2:.3f}, K={3:.3f}".format(*fit_params),transform=plt.gca().transAxes,fontsize=13)
+
 	plt.legend()
 
 

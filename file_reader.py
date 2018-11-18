@@ -61,6 +61,9 @@ def intensity_factor(incidentpower):
 	return intensity_factor
 
 def get_independent_variables_and_relative_intensities(runs):
+	if type(runs) != type([]): # if runs is a single run
+		runs = [runs] # make it a list
+		
 	independent_variables_array = []
 	relative_intensities = []
 	relative_stds = []
