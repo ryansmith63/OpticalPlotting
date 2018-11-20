@@ -85,7 +85,7 @@ def plot_runs(runs, title=False, rot=False, voltage=False, labels=False, label=F
 		else:
 			plt.ylabel("intensity (reflected rate/str)/(incident rate)")
 	if log:
-		plt.ylim(0.5 * miny, 1.1 * maxy)
+		plt.ylim(0.5 * miny, 5. * maxy)
 		plt.yscale("log")
 	else:
 		plt.ylim(0, 1.1 * maxy)
@@ -124,6 +124,56 @@ def plot_TSTR_fit(theta_i, n, fit_params, label="", color="", average_angle=0, p
 
 	plt.legend()
 
+"""fit_params=["rho_L_1","n_1","gamma_1","K_1",
+             ,"gamma_2","frac_1"]
+superposes two TSTR fits, intended to be and one layer of LXe and PTFE (labeled as 1) and one layer of LXe and gas (labeled as 2)
+"""
+def plot_double_TSTR_fit(theta_i, n, fit_params, labels=[], colors="", average_angle=0, precision=-1, sigma_theta_i=2.0):
+	fit_params_1 = fit_params[0:4]
+	gamma_2 = fit_params[4]
+	frac_1 = fit_params[5]
+	fit_params_2 = [0., 1., gamma_2] # don't include specular spike
 
+	min_angle = 0
+	max_angle = 85
+	d_theta = 1
+	n_angles = (max_angle-min_angle)/d_theta+1
+	x = np.linspace(min_angle, max_angle, n_angles)
+	y_1 = frac_1 * np.array(BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params_1, average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i))
+	y_2 = (1 - frac_1) * np.array(BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params_2, average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i))
+	y = y_1 + y_2
+
+	if labels:
+		plt.plot(x, y, label=labels[0], color=colors[0])
+	else:
+		plt.plot(x, y, color=colors[0])
+
+	if labels:
+		plt.plot(x, y_1, label=labels[1], color=colors[1])
+	else:
+		plt.plot(x, y_1, color=colors[1])
+
+	if labels:
+		plt.plot(x, y_2, label=labels[2], color=colors[2])
+	else:
+		plt.plot(x, y_2, color=colors[2])
+
+	rho_L_1 = fit_params_1[0]
+	n_1 = fit_params_1[1]
+	gamma_1 = fit_params_1[2]
+	K_1 =  fit_params_1[3]
+
+	string = "Fit: rho_L_1=" + str(np.around(rho_L_1, 3)) + ", n_1=" + str(np.around(n_1, 3)) + ", gamma_1=" + str(np.around(gamma_1, 3)) + ", K_1=" + str(np.around(K_1, 3))
+	plt.text(0.05, 0.15, string, transform=plt.gca().transAxes,fontsize=10)
+	string = "      gamma_2=" + str(np.around(gamma_2, 3)) + ", frac_1=" + str(np.around(frac_1, 3)) + ", sigma_theta_i=" + str(np.around(sigma_theta_i, 3))
+	plt.text(0.05, 0.1, string, transform=plt.gca().transAxes,fontsize=10)
+	
+	"""
+	plt.text(0.05,0.1,r"Fit: $\rho_L_1$={0:.3f}, n_1={1:.3f}, $\gamma_1$={2:.3f}".format(*fit_params_1),transform=plt.gca().transAxes,fontsize=13)
+	plt.text(0.05,0.05,r"Fit: $\rho_L_2$={0:.3f}, n_2={1:.3f}, $\gamma_2$={2:.3f}".format(*fit_params_2),transform=plt.gca().transAxes,fontsize=13)
+	plt.text(0.05,0.,r"Fit: frac\_1={0:.3f}".format(*[frac_1]),transform=plt.gca().transAxes,fontsize=13)
+	"""
+	
+	plt.legend()
 
 
