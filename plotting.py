@@ -128,7 +128,7 @@ def plot_TSTR_fit(theta_i, n, fit_params, label="", color="", average_angle=0, p
              ,"gamma_2","frac_1"]
 superposes two TSTR fits, intended to be and one layer of LXe and PTFE (labeled as 1) and one layer of LXe and gas (labeled as 2)
 """
-def plot_double_TSTR_fit(theta_i, n, fit_params, labels=[], colors="", average_angle=0, precision=-1, sigma_theta_i=2.0):
+def plot_double_TSTR_fit(theta_i, n, fit_params, labels=[], colors="", average_angle=0, precision=-1, sigma_theta_i=2.):
 	fit_params_1 = fit_params[0:4]
 	gamma_2 = fit_params[4]
 	frac_1 = fit_params[5]
