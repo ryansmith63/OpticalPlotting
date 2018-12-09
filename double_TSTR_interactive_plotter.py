@@ -48,15 +48,15 @@ while get_input:
 	# Trying setting incident angles by hand, for better fits to specular spike
     plot_double_TSTR_fit(30., 1.69, params, labels=["fitted total", "fitted 1 (LXe-PTFE)", "fitted 2 (LXe-gas)"], colors=["k", "r", "b"], average_angle=4., precision=0.25)
     print("done with 30...")
-    #plot_double_TSTR_fit(45., 1.69, params, colors=["k", "r", "b"], average_angle=4., precision=0.25)
+    plot_double_TSTR_fit(45., 1.69, params, colors=["k", "r", "b"], average_angle=4., precision=0.25)
     print("done with 45...")
     #plot_double_TSTR_fit(52., 1.69, params, colors=["k", "r", "b"], average_angle=4., precision=0.25)
     #print("done with 52...")
-    #plot_double_TSTR_fit(60., 1.69, params, colors=["k", "r", "b"], average_angle=4., precision=0.25)
+    plot_double_TSTR_fit(60., 1.69, params, colors=["k", "r", "b"], average_angle=4., precision=0.25)
     print("done with 60...")
     #plot_double_TSTR_fit(67., 1.69, params, colors=["k", "r", "b"], average_angle=4., precision=0.25)
     #print("done with 67...")
-    #plot_double_TSTR_fit(75., 1.69, params, colors=["k", "r", "b"], average_angle=4., precision=0.25)
+    plot_double_TSTR_fit(75., 1.69, params, colors=["k", "r", "b"], average_angle=4., precision=0.25)
     print("done with 75...")
 
     #plt.text(0.05,0.1,r"Fit: $\rho_L$={0:.3f}, n={1:.2f}, $\gamma$={2:.3f}, K={3:.3f}, $\sigma (\theta_i)$={4:.3f}".format(*params),transform=plt.gca().transAxes,fontsize=11)

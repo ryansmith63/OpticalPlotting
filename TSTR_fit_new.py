@@ -12,6 +12,9 @@ import numpy as np
 import scipy.optimize
 import copy
 import time
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D 
+import matplotlib.colors
 
 # following equations could be refined for mu !~ mu_0, but teflon has mu~mu_0
 
@@ -571,6 +574,79 @@ def reflectance_specular(theta_i_in_degrees, n_0, polarization, parameters):
         spec_spike = C * F_
         
     return scipy.integrate.dblquad(BRIDF_int, -np.pi, np.pi, a, b)[0] + spec_spike
+
+# uses 3d grid of parameters
+# independent variables array has as elements lists of independent variables for each point
+# at each point, it has the form [theta_r_in_degrees, phi_r_in_degrees, theta_i_in_degrees, n_0, polarization]
+def fit_parameters_new(independent_variables_array, intensity_array, std_array, rho_start, rho_end, rho_num, n_start, n_end, n_num, gamma_start, gamma_end, gamma_num, plot=True, show=True):
+    rho_array = np.linspace(rho_start, rho_end, rho_num)
+    n_array = np.linspace(n_start, n_end, n_num)
+    gamma_array = np.linspace(gamma_start, gamma_end, gamma_num)
+
+    grid_points = []
+    for rho in rho_array:
+        for n in n_array:
+            for gamma in gamma_array:
+                grid_points.append([rho, n, gamma])
+
+    length = len(grid_points)
+
+    chi2 = []
+    for i in range(len(grid_points)):
+        grid_point = grid_points[i]
+        chi2.append(chi_squared(independent_variables_array, intensity_array, std_array, grid_point))
+        if i%10 == 0:
+            print(str(i) + "/" + str(length))
+
+    min_index = np.argmin(chi2)
+    min_params = grid_points[min_index]
+
+    if plot:
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        p0 = []
+        p1 = []
+        p2 = []
+        color = []
+        for i in range(len(grid_points)):
+            p0.append(grid_points[i][0])
+            p1.append(grid_points[i][1])
+            p2.append(grid_points[i][2])
+            color.append(chi2[i])
+
+        a = ax.scatter(p0, p1, p2, c=color, norm=matplotlib.colors.LogNorm(), s=15)
+
+        fig.colorbar(a)
+
+        ax.text2D(0., 0.95, "optimal parameters: rho_L = " + str(round(min_params[0], 5)) + ", n = " + str(round(min_params[1], 5)) + ", gamma = " + str(round(min_params[2], 5)), transform=ax.transAxes)
+
+        ax.set_xlabel('rho_L')
+        ax.set_ylabel('n')
+        ax.set_zlabel('gamma')
+
+        if show:
+            plt.show()
+
+    return grid_points[min_index]
+
+def chi_squared(independent_variables_array, intensity_array, std_array, grid_point):
+    # assumes entire array is at one incident angle and external index of refraction
+    theta_i_in_degrees = independent_variables_array[0][2] 
+    n_0 = independent_variables_array[0][3]
+
+    # assumes data is 85 degrees to 0 degrees in 1 degree increments
+    theta_r_in_degrees_array = np.linspace(85, 0, 86)
+
+    fit = BRIDF_plotter(theta_r_in_degrees_array, 0, theta_i_in_degrees, n_0, 0.5, grid_point, average_angle=0, precision=-1, sigma_theta_i=0)
+
+    chi2 = 0
+    for i in range(len(fit)):
+        chi2 += (fit[i] - intensity_array[i]) * (fit[i] - intensity_array[i]) / (std_array[i] * std_array[i])
+
+    return chi2
+
+
+
 
 
 

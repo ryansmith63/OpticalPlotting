@@ -107,7 +107,7 @@ def plot_gaussian_fit(run, mu=1000):
 
 
 #works with or without spike
-def plot_TSTR_fit(theta_i, n, fit_params, label="", color="", average_angle=0, precision=-1, sigma_theta_i=2.0):
+def plot_TSTR_fit(theta_i, n, fit_params, label="", color="", average_angle=0, precision=-1, sigma_theta_i=2.0, fit_text="Fit: ", fit_text_offset=0):
 	min_angle = 0
 	max_angle = 85
 	d_theta = 1
@@ -118,9 +118,9 @@ def plot_TSTR_fit(theta_i, n, fit_params, label="", color="", average_angle=0, p
 	else:
 		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i), color=color)
 	if len(fit_params) == 3:
-		plt.text(0.05,0.05,r"Fit: $\rho_L$={0:.3f}, n={1:.2f}, $\gamma$={2:.3f}".format(*fit_params),transform=plt.gca().transAxes,fontsize=13)
+		plt.text(0.05,0.05 + fit_text_offset, fit_text + r"$\rho_L$={0:.3f}, n={1:.2f}, $\gamma$={2:.3f}".format(*fit_params),transform=plt.gca().transAxes,fontsize=13)
 	else:
-		plt.text(0.05,0.05,r"Fit: $\rho_L$={0:.3f}, n={1:.2f}, $\gamma$={2:.3f}, K={3:.3f}".format(*fit_params),transform=plt.gca().transAxes,fontsize=13)
+		plt.text(0.05,0.05 + fit_text_offset, fit_text + r"$\rho_L$={0:.3f}, n={1:.2f}, $\gamma$={2:.3f}, K={3:.3f}".format(*fit_params),transform=plt.gca().transAxes,fontsize=13)
 
 	plt.legend()
 
