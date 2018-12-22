@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-path = "/Users/leehagaman/Desktop/OpticalPlotting/"
-#path = "C:\\Users\\swkra\\OneDrive\\Documents\\GitHub\\OpticalPlotting\\"
+#path = "/Users/leehagaman/Desktop/OpticalPlotting/"
+path = "C:\\Users\\swkra\\OneDrive\\Documents\\GitHub\\OpticalPlotting\\"
 
 class Run:
 	def __init__(self, filename):
@@ -10,7 +10,7 @@ class Run:
 		lines = file.readlines()
 		data = np.loadtxt(path + filename, skiprows=12)
 		self.angles = [datum[0] for datum in data]
-		bkg = 50 # constant background from e.g. dark rate
+		bkg = 150 # constant background from e.g. dark rate; 500 for initial Spectralon 400 nm data, 100 for 500 nm data
 		# chosen to be slightly less than lowest rate during background measurement in LXe
 		self.intensities = [datum[1]-bkg for datum in data]
 		self.intensity_std = [datum[2] for datum in data]
@@ -27,7 +27,7 @@ class Run:
 		self.temperature = float(lines[10][13:-1])
 		self.pressure = float(lines[11][10:-1])
 		self.relative_intensities = [intensity*intensity_factor(self.incidentpower) for intensity in self.intensities]
-		const_err = 50 # error to add to std from e.g. error on background
+		const_err = 100 # error to add to std from e.g. error on background
 		self.relative_std = [(std+const_err)*intensity_factor(self.incidentpower) for std in self.intensity_std]
 
 		self.rot_angles = [180. - self.incidentangle - a for a in self.angles]
@@ -50,7 +50,15 @@ class Run:
 
 def intensity_factor(incidentpower):
 	
-	photodiode_angular_size = 4. * np.pi / 180.
+	# Angular diameter is arcsin(0.385"/5.4") = 4.1 deg; to get to angular radius of 2.44 for same aperture, distance must be ~4.5" (~4.35" for 2.54)
+	# Remeasured, got 0.385-0.390" aperture, ~5.2" distance = 4.3 degrees (2.15 degrees radius)
+	# Spectralon calibrated reflectance: 0.9745 at 400 nm, 0.9784 at 500 nm; index is listed as 1.35 (no wavelength specified...)
+	# fit to data matches this for angular_radius of 2.67 (400 nm), 2.68 (500 nm) when using bkg of 50, err of 50
+	# for 400 nm, bkg of 500, err of 100 (closer match to background measurement at 405 nm, similar power), get 2.44
+	# for 500 nm, bkg of 100, err of 100 (closer match to bkg at 500 nm when scaled by power, but taken a month later), get 2.61
+	# for 500 nm, bkg of 150, err of 100 (background at 405 nm from same day, but scaled by power), get 2.54
+	photodiode_angular_radius = 2.54 #degrees; old plots used 4.0 incorrectly
+	photodiode_angular_size = photodiode_angular_radius * np.pi / 180.
 
 	photodiode_solid_angle = np.pi * np.power(photodiode_angular_size, 2)
 
