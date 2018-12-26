@@ -5,12 +5,12 @@ from plotting import plot_runs, plot_TSTR_fit
 from TSTR_fit_new import fit_parameters, fit_parameters_and_angle, BRIDF_plotter, reflectance_diffuse, reflectance_specular, BRIDF
 import time
 
-path = "vuv_height_comparison_and_first_data/M18 turn polished/center of sample/"#\\M18 turn\\center of sample\\"
-#path = "vuv_height_comparison_and_first_data\\M18 turn polished\\center of sample\\"#\\M18 turn\\center of sample\\"
-m18pol30 = Run(path + "2018_08_30__11_23_42.txt") 
-m18pol45 = Run(path + "2018_08_30__11_29_08.txt") 
-m18pol60 = Run(path + "2018_08_30__11_34_35.txt") 
-m18pol75 = Run(path + "2018_08_30__11_39_45.txt") 
+#path = "vuv_height_comparison_and_first_data/M18 turn polished/center of sample/"#\\M18 turn\\center of sample\\"
+path = "vuv_height_comparison_and_first_data\\M18 turn\\center of sample\\"#\\M18 turn\\center of sample\\"
+# m18pol30 = Run(path + "2018_08_30__11_23_42.txt") 
+# m18pol45 = Run(path + "2018_08_30__11_29_08.txt") 
+# m18pol60 = Run(path + "2018_08_30__11_34_35.txt") 
+# m18pol75 = Run(path + "2018_08_30__11_39_45.txt") 
 # nxt8530 = Run(path + "2018_08_30__14_13_18.txt") 
 # nxt8545 = Run(path + "2018_08_30__14_19_14.txt") 
 # nxt8560 = Run(path + "2018_08_30__14_24_51.txt") 
@@ -19,10 +19,13 @@ m18pol75 = Run(path + "2018_08_30__11_39_45.txt")
 # skived45 = Run(path + "2018_08_29__17_35_12.txt") 
 # skived60 = Run(path + "2018_08_29__17_40_57.txt") 
 # skived75 = Run(path + "2018_08_29__17_46_39.txt") 
-# m1830 = Run(path + "2018_08_30__15_16_18.txt") # Fit to 36 deg
-# m1845 = Run(path + "2018_08_30__15_22_02.txt") # Fit to 46 deg
-# m1860 = Run(path + "2018_08_30__15_29_09.txt") # Fit to 60 deg
-# m1875 = Run(path + "2018_08_30__15_35_27.txt") # Fit to 85 deg
+m1830 = Run(path + "2018_08_30__15_16_18.txt") # Fit to 36 deg
+#m1830.change_theta_i(33)
+m1845 = Run(path + "2018_08_30__15_22_02.txt") # Fit to 46 deg
+m1860 = Run(path + "2018_08_30__15_29_09.txt") # Fit to 60 deg
+#m1860.change_theta_i(61)
+m1875 = Run(path + "2018_08_30__15_35_27.txt") # Fit to 85 deg
+#m1875.change_theta_i(76)
 # m1730 = Run(path + "2018_08_30__16_18_57.txt")
 # m1745 = Run(path + "2018_08_30__16_11_27.txt")
 # m1760 = Run(path + "2018_08_30__16_06_11.txt")
@@ -32,11 +35,11 @@ m18pol75 = Run(path + "2018_08_30__11_39_45.txt")
 # nx60 = Run(path + "2018_08_29__16_08_16.txt")
 # nx75 = Run(path + "2018_08_29__16_13_39.txt")
 
-runs = [m18pol30, m18pol45, m18pol60, m18pol75]#[m1875]#
+runs = [m1830, m1845, m1860, m1875]#[m1875]#
 labels=["30 degrees", "45 degrees", "60 degrees", "75 degrees"]#["75 degrees"]#
 
 # Plot BRIDF data
-sample_name="M18 turn polished"
+sample_name="M18 turn"
 plot_runs(runs, title=sample_name+", 175nm", log=True, labels=labels, errorbars=True)
 #plt.show()
 
@@ -61,10 +64,10 @@ while get_input:
     #plt.figure(fig_num)
     plot_runs(runs, title=sample_name+", 175nm", log=True, labels=labels, errorbars=True)
 	# Trying setting incident angles by hand, for better fits to specular spike
-    plot_TSTR_fit(29., 1., fit_params, label="fitted", color="k", average_angle=4., precision=0.25)
-    plot_TSTR_fit(42., 1., fit_params, color="k", average_angle=4., precision=0.25)
-    plot_TSTR_fit(60., 1., fit_params, color="k", average_angle=4., precision=0.25)
-    plot_TSTR_fit(77., 1., fit_params, color="k", average_angle=4., precision=0.25)
+    plot_TSTR_fit(30, 1., fit_params, label="fitted", color="k", average_angle=4., precision=0.25, sigma_theta_i=sigma_theta_i)
+    plot_TSTR_fit(45., 1., fit_params, color="k", average_angle=4., precision=0.25, sigma_theta_i=sigma_theta_i)
+    plot_TSTR_fit(60., 1., fit_params, color="k", average_angle=4., precision=0.25, sigma_theta_i=sigma_theta_i)
+    plot_TSTR_fit(75, 1., fit_params, color="k", average_angle=4., precision=0.25, sigma_theta_i=sigma_theta_i)
     plt.text(0.05,0.1,r"Fit: $\rho_L$={0:.3f}, n={1:.2f}, $\gamma$={2:.3f}, K={3:.3f}, $\sigma (\theta_i)$={4:.3f}".format(*params),transform=plt.gca().transAxes,fontsize=11)
     plt.show()
     get_input=input("New parameters? (y/n) ").lower()=='y'

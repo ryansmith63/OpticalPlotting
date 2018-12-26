@@ -10,7 +10,7 @@ class Run:
 		lines = file.readlines()
 		data = np.loadtxt(path + filename, skiprows=12)
 		self.angles = [datum[0] for datum in data]
-		bkg = 150 # constant background from e.g. dark rate; 500 for initial Spectralon 400 nm data, 100 for 500 nm data
+		bkg = 100 # constant background from e.g. dark rate; 500 for initial Spectralon 400 nm data, 100 for 500 nm data
 		# chosen to be slightly less than lowest rate during background measurement in LXe
 		self.intensities = [datum[1]-bkg for datum in data]
 		self.intensity_std = [datum[2] for datum in data]
@@ -41,10 +41,10 @@ class Run:
 		# independent_variables_array is a list where each element is of the form [theta_r_in_degrees, phi_r_in_degrees, theta_i_in_degrees, n_0, polarization]
 		self.independent_variables_array = [[angle, 0, self.incidentangle, self.n, 0.5] for angle in self.angles]
 
-	def change_theta_i(new_theta_i):
+	def change_theta_i(self, new_theta_i):
 		# Changes incidentangle, angles, and angles in independent_variables_array; does not change rot_angles (which should be fixed)
 		delta_theta = new_theta_i-self.incidentangle
-		self.angles = self.angles-delta_theta # If incident angle increases, angles relative to normal decrease
+		self.angles = [angle-delta_theta for angle in self.angles] # If incident angle increases, angles relative to normal decrease
 		self.independent_variables_array = [[list[0]-delta_theta]+list[1:] for list in self.independent_variables_array]
 		self.incidentangle = new_theta_i
 

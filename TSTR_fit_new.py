@@ -133,7 +133,9 @@ def BRIDF_plotter(theta_r_in_degrees_array, phi_r_in_degrees, theta_i_in_degrees
         log_rho_L = np.log(parameters[0])
         log_n_minus_one = np.log(parameters[1]-1)
         log_gamma = np.log(parameters[2])
-        if len(parameters)>3: log_K = np.log(parameters[3])
+        if len(parameters)>3: 
+            if parameters[3]>0: log_K = np.log(parameters[3])
+            else: log_K = None
         else: log_K = None
         for theta_r_in_degrees in theta_r_in_degrees_array: # For each point, calculate the BRIDF along a grid nearby and average it
             avgs.append(average_BRIDF([theta_r_in_degrees,phi_r_in_degrees,theta_i_in_degrees,n_0,polarization], log_rho_L, log_n_minus_one, log_gamma, log_K, average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i))
@@ -386,8 +388,10 @@ def average_BRIDF(independent_variables, log_rho_L, log_n_minus_one, log_gamma, 
         ti=ti.flatten()
         theta_i=ti[in_circle]
         #print(theta_i[:25])
+        weights = get_relative_gaussian_weights(theta_i, theta_i_scalar, sigma_theta_i)
+    else:
+        weights = [1.0]*len(tt)
     #print(tt[:25],pp[:25])
-    weights = get_relative_gaussian_weights(theta_i, theta_i_scalar, sigma_theta_i)
     return np.sum(weights * unvectorized_fitter([tt,pp,theta_i]+list(independent_variables[3:]),log_rho_L, log_n_minus_one, log_gamma, log_K, precision=precision)) / np.sum(weights)
 
     

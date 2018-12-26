@@ -16,13 +16,13 @@ def plot_runs(runs, title=False, rot=False, voltage=False, labels=False, label=F
 	if figure:
 		plt.figure()
 
-    if color:		
-        color_list = [color]*len(runs)
-    else:
-        if len(runs) > 13:	# If using a long list, color in order according to 'cool' colormap
-	        color_list = [plt.cm.cool(i) for i in np.linspace(0,1,len(runs))] 
-        else:
-            color_list = ["r", "g", "b", "m", "c", "y", "k", "lightpink", "darksalmon", "slategray", "plum", "lightcoral", "indigo", "darkorange"]
+	if color:		
+		color_list = [color]*len(runs)
+	else:
+		if len(runs) > 13:	# If using a long list, color in order according to 'cool' colormap
+			color_list = [plt.cm.cool(i) for i in np.linspace(0,1,len(runs))] 
+		else:
+			color_list = ["r", "g", "b", "m", "c", "y", "k", "lightpink", "darksalmon", "slategray", "plum", "lightcoral", "indigo", "darkorange"]
 
 	minx = 1000
 	maxx = -1000
