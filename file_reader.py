@@ -10,7 +10,7 @@ class Run:
 		lines = file.readlines()
 		data = np.loadtxt(path + filename, skiprows=12)
 		self.angles = [datum[0] for datum in data]
-		bkg = 100 # constant background from e.g. dark rate; 500 for initial Spectralon 400 nm data, 100 for 500 nm data
+		bkg = 150 # constant background from e.g. dark rate; 500 for initial Spectralon 400 nm data, 100 for 500 nm data
 		# chosen to be slightly less than lowest rate during background measurement in LXe
 		self.intensities = [datum[1]-bkg for datum in data]
 		self.intensity_std = [datum[2] for datum in data]

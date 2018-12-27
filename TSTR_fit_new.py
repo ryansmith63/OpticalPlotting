@@ -449,11 +449,36 @@ def fit_parameters(independent_variables_array_intensity_array, p0=[0.5, 1.5, 0.
     # initial parameters are the ones found in the paper
     # fitter_p0 = fitter(independent_variables_array, p0_log[0], p0_log[1], p0_log[2])
     # res_fit_p0 = np.sum((np.array(intensity_array) - np.array(fitter_p0))**2)
-    fit_params_log = scipy.optimize.curve_fit(fitter, np.array(independent_variables_array), np.array(intensity_array),
-                                          p0=p0_log, sigma=std_array)[0]
-    # fitter_popt = fitter(independent_variables_array, fit_params[0], fit_params[1], fit_params[2])
-    # res_fit_popt = np.sum((np.array(intensity_array) - np.array(fitter_popt))**2)
-    # print(res_fit_p0, res_fit_popt)
+    fit_results = scipy.optimize.curve_fit(fitter, np.array(independent_variables_array), np.array(intensity_array),
+                                          p0=p0_log, sigma=std_array, absolute_sigma=True)
+    fit_params_log = fit_results[0]
+    cov_matrix = fit_results[1]
+    #print("Covariance matrix (log): \n", cov_matrix)
+    errs = np.sqrt(np.diag(cov_matrix))
+    print("Errors (log): ",errs)
+    errs_inv = 1./errs
+    errs_inv_mat = np.diag(errs_inv)
+    corr_mat = np.matmul(np.matmul(errs_inv_mat,cov_matrix),errs_inv_mat)
+    print("Correlation matrix (log): \n",corr_mat)
+    
+    fitter_popt = fitter(independent_variables_array, *fit_params_log)
+    chi2_fit_popt = np.sum(((np.array(intensity_array) - np.array(fitter_popt))/std_array)**2)/(len(intensity_array)-len(fit_params_log))
+    print("Fit reduced chi^2: ",chi2_fit_popt)
+    # tmp = (np.array(intensity_array) - np.array(fitter_popt))/std_array
+    # top_diffs = np.argpartition(tmp**2,-10)[-10:]
+    # print([(independent_variables_array[ind][0],independent_variables_array[ind][2]) for ind in top_diffs])
+    # print([tmp[ind]**2 for ind in top_diffs])
+	
+    min_rho = np.exp(fit_params_log[0]-errs[0])
+    max_rho = np.exp(fit_params_log[0]+errs[0])
+    min_n = np.exp(fit_params_log[1]-errs[1])+1
+    max_n = np.exp(fit_params_log[1]+errs[1])+1
+    min_gamma = np.exp(fit_params_log[2]-errs[2])
+    max_gamma = np.exp(fit_params_log[2]+errs[2])
+    param_ranges = [[min_rho,max_rho],[min_n,max_n],[min_gamma,max_gamma]]
+    if len(fit_params_log)>3: param_ranges.append([np.exp(fit_params_log[3]-errs[3]),np.exp(fit_params_log[3]+errs[3])])
+    print("Min and max values: \n",param_ranges)
+	
     params = [np.exp(fit_params_log[0]), np.exp(fit_params_log)[1] + 1, np.exp(fit_params_log[2])]
     if len(fit_params_log)>3: params.append(np.exp(fit_params_log[3]))
     return params
