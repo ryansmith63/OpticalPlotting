@@ -4,7 +4,7 @@ from gaussian_fit import gaussian_get_params
 from TSTR_fit_new import BRIDF_plotter
 
 # takes a single run, list of runs, or list of lists of runs. For a list of lists, it gives each inner list the same color and label.
-def plot_runs(runs, title=False, rot=False, voltage=False, labels=False, label=False, show=False, xlabel="", ylabel="", figure=True, smooth=False, legend_loc=0, include_legend=True, linestyle="-", log=False, errorbars=True, color=""):
+def plot_runs(runs, title=False, rot=False, voltage=False, labels=False, label=False, show=False, xlabel="", ylabel="", figure=True, smooth=False, legend_loc=0, include_legend=True, linestyle="-", log=False, errorbars=True, color="", colormap=False):
 	if type(runs) != type([]): # if runs is a single run
 		runs = [runs] # make it a list
 
@@ -19,7 +19,7 @@ def plot_runs(runs, title=False, rot=False, voltage=False, labels=False, label=F
 	if color:		
 		color_list = [color]*len(runs)
 	else:
-		if len(runs) > 13:	# If using a long list, color in order according to 'cool' colormap
+		if len(runs) > 12 or colormap:	# If using a long list, color in order according to 'cool' colormap
 			color_list = [plt.cm.cool(i) for i in np.linspace(0,1,len(runs))] 
 		else:
 			color_list = ["r", "g", "b", "m", "c", "y", "k", "lightpink", "darksalmon", "slategray", "plum", "lightcoral", "indigo", "darkorange"]
@@ -110,16 +110,16 @@ def plot_gaussian_fit(run, mu=1000):
 
 
 #works with or without spike
-def plot_TSTR_fit(theta_i, n, fit_params, label="", color="", average_angle=0, precision=-1, sigma_theta_i=2.0, fit_text="Fit: ", fit_text_offset=0):
+def plot_TSTR_fit(theta_i, n, fit_params, label="", color="", average_angle=0, precision=-1, sigma_theta_i=2.0, fit_text="Fit: ", fit_text_offset=0, phi_r=0):
 	min_angle = 0
 	max_angle = 85
 	d_theta = 1
 	n_angles = (max_angle-min_angle)/d_theta+1
 	x = np.linspace(min_angle, max_angle, n_angles)
 	if label:
-		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i), label=label, color=color)
+		plt.plot(x, BRIDF_plotter(x, phi_r, theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i), label=label, color=color)
 	else:
-		plt.plot(x, BRIDF_plotter(x, 0., theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i), color=color)
+		plt.plot(x, BRIDF_plotter(x, phi_r, theta_i, n, 0.5, fit_params, average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i), color=color)
 	if len(fit_params) == 3:
 		plt.text(0.05,0.05 + fit_text_offset, fit_text + r"$\rho_L$={0:.3f}, n={1:.2f}, $\gamma$={2:.3f}".format(*fit_params),transform=plt.gca().transAxes,fontsize=13)
 	else:

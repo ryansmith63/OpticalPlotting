@@ -10,6 +10,7 @@
 
 import numpy as np
 import scipy.optimize
+import scipy.special
 import copy
 import time
 import matplotlib.pyplot as plt
@@ -61,7 +62,7 @@ def F_s_array(theta_i, n_0, n):
     mask = np.abs(n_0 / n * np.sin(theta_i)) > 1
     #print(type(mask))
     theta_i_mask = np.ma.masked_array(theta_i, mask)
-    theta_t = np.arcsin(n_0 / n * np.sin(theta_i_mask))
+    theta_t = np.ma.arcsin(n_0 / n * np.sin(theta_i_mask))
     F_calc = np.power((n_0 * np.cos(theta_i) - n * np.cos(theta_t)) /
                     (n_0 * np.cos(theta_i) + n * np.cos(theta_t)), 2)
     #print(F_calc)
@@ -88,7 +89,7 @@ def F_p_array(theta_i, n_0, n):
     mask = np.abs(n_0 / n * np.sin(theta_i)) > 1
     #print(type(mask))
     theta_i_mask = np.ma.masked_array(theta_i, mask)
-    theta_t = np.arcsin(n_0 / n * np.sin(theta_i_mask))
+    theta_t = np.ma.arcsin(n_0 / n * np.sin(theta_i_mask))
     #print(type(theta_t))
     F_calc = np.power((n_0 * np.cos(theta_t) - n * np.cos(theta_i)) /
                     (n_0 * np.cos(theta_t) + n * np.cos(theta_i)), 2)
@@ -229,9 +230,9 @@ def BRIDF_pair(theta_r, phi_r, theta_i, n_0, polarization, parameters, precision
     # Wolff correction factor, p. 114 of thesis
     # Operating on masked arrays is slow; only use them if needed (inputs are arrays)
     if np.size(theta_r) > 1 or np.size(theta_i) > 1 or np.size(phi_r) > 1: # Have to use masks
-        mask = np.abs(n_0 / n * np.sin(theta_r)) > 1
+        mask = np.abs(n_0 / n * np.sin(theta_r)) >= 1
         theta_r_mask = np.ma.masked_array(theta_r, mask)
-        W = (1 - F(theta_i, n_0, n, polarization)) * (1 - F_unpolarized(np.arcsin(n_0 / n * np.sin(theta_r_mask)), n, n_0))
+        W = (1 - F(theta_i, n_0, n, polarization)) * (1 - F_unpolarized(np.ma.arcsin(n_0 / n * np.sin(theta_r_mask)), n, n_0))
         W = np.ma.filled(W, fill_value=0)
     else:
         if np.abs(n_0 / n * np.sin(theta_r)) > 1:
@@ -280,7 +281,12 @@ def BRIDF_pair(theta_r, phi_r, theta_i, n_0, polarization, parameters, precision
     else:
         C = 0
     
-
+    # Empirical addition of error function to specular lobe, for data in LXe
+    # theta_cutoff = 67
+    # beta = 1
+    # erf_factor = 0.5*(1+scipy.special.erf((theta_r-theta_cutoff)/beta))
+    
+    
     # Semi-empirical formula from p. 121
     # specular component is split into specular lobe w/ normalization=1-C and specular spike w/ normalization=C
     return [(1-C) * F_ * G * P_ / (4 * np.cos(theta_i)) + C * F_ * G * specular_delta,
@@ -351,7 +357,7 @@ def average_BRIDF(independent_variables, log_rho_L, log_n_minus_one, log_gamma, 
     # Timing tests suggest that there's almost no speed up between a precision of 0.5 and 1 (for average_angle=4), and
     # only a slight speed up for 0.5 vs 0.25, so a precision of 0.5 or 0.25 seems reasonable
     # If sigma_theta_i>0, also add smearing in theta_i with width sigma_theta_i, to simulate the finite width of the incoming light
-	# 0.14" collimator ID, 7" length -> arcsin(0.14/7) ~= 1.1 deg full opening angle for cone (if all light starts at a point before collimator)
+    # 0.14" collimator ID, 7" length -> arcsin(0.14/7) ~= 1.1 deg full opening angle for cone (if all light starts at a point before collimator)
     theta_r0 = independent_variables[0]
     phi_r0 = independent_variables[1]
     theta_i = independent_variables[2]
@@ -435,7 +441,7 @@ def fitter_with_angle(independent_variables_without_angle_array, theta_i, log_rh
 # if precision is positive, the averaging is a full 2D average over theta_r, phi_r with grid size given by precision; else just a 1D average in plane
 # use_errs sets whether to use the run's relative_std values to weight the fitting by or to use uniform errors
 # use_spike sets whether to include the specular spike in the BRIDF model
-def fit_parameters(independent_variables_array_intensity_array, p0=[0.5, 1.5, 0.05], average_angle=0, precision=-1, use_errs=True, use_spike=False):
+def fit_parameters(independent_variables_array_intensity_array, p0=[0.5, 1.5, 0.05], average_angle=0, precision=-1, use_errs=True, use_spike=False, bounds=(-np.inf, np.inf)):
     independent_variables_array = independent_variables_array_intensity_array[0]
     independent_variables_array = [list+[precision,average_angle] for list in independent_variables_array]
     #print(independent_variables_array)
@@ -447,10 +453,24 @@ def fit_parameters(independent_variables_array_intensity_array, p0=[0.5, 1.5, 0.
         if len(p0)>3: p0_log.append(np.log(p0[3]))
         else: p0_log.append(np.log(2.0)) # default K value
     # initial parameters are the ones found in the paper
+	# Set parameter bounds, transformed to log space; if lower or upper bounds are length <3, use default unbounded in that direction
+    bounds_min=bounds[0]
+    bounds_max=bounds[1]
+    if len(bounds_min)>2:
+        bounds_min_log=[np.log(bounds_min[0]), np.log(bounds_min[1]-1), np.log(bounds_min[2])]
+        if len(bounds_min)>3 and use_spike: bounds_min_log.append(np.log(bounds_min[3]))
+    else:
+        bounds_min_log=-np.inf
+    if len(bounds_max)>2:
+        bounds_max_log=[np.log(bounds_max[0]), np.log(bounds_max[1]-1), np.log(bounds_max[2])]
+        if len(bounds_max)>3 and use_spike: bounds_max_log.append(np.log(bounds_max[3]))
+    else:
+        bounds_max_log=np.inf
+    bounds_log=(bounds_min_log, bounds_max_log)
     # fitter_p0 = fitter(independent_variables_array, p0_log[0], p0_log[1], p0_log[2])
     # res_fit_p0 = np.sum((np.array(intensity_array) - np.array(fitter_p0))**2)
     fit_results = scipy.optimize.curve_fit(fitter, np.array(independent_variables_array), np.array(intensity_array),
-                                          p0=p0_log, sigma=std_array, absolute_sigma=True)
+                                          p0=p0_log, sigma=std_array, absolute_sigma=True, bounds=bounds_log)
     fit_params_log = fit_results[0]
     cov_matrix = fit_results[1]
     #print("Covariance matrix (log): \n", cov_matrix)
@@ -462,13 +482,14 @@ def fit_parameters(independent_variables_array_intensity_array, p0=[0.5, 1.5, 0.
     print("Correlation matrix (log): \n",corr_mat)
     
     fitter_popt = fitter(independent_variables_array, *fit_params_log)
-    chi2_fit_popt = np.sum(((np.array(intensity_array) - np.array(fitter_popt))/std_array)**2)/(len(intensity_array)-len(fit_params_log))
-    print("Fit reduced chi^2: ",chi2_fit_popt)
+    if std_array is not None:
+        chi2_fit_popt = np.sum(((np.array(intensity_array) - np.array(fitter_popt))/std_array)**2)/(len(intensity_array)-len(fit_params_log))
+        print("Fit reduced chi^2: ",chi2_fit_popt)
     # tmp = (np.array(intensity_array) - np.array(fitter_popt))/std_array
     # top_diffs = np.argpartition(tmp**2,-10)[-10:]
     # print([(independent_variables_array[ind][0],independent_variables_array[ind][2]) for ind in top_diffs])
     # print([tmp[ind]**2 for ind in top_diffs])
-	
+    
     min_rho = np.exp(fit_params_log[0]-errs[0])
     max_rho = np.exp(fit_params_log[0]+errs[0])
     min_n = np.exp(fit_params_log[1]-errs[1])+1
@@ -478,7 +499,7 @@ def fit_parameters(independent_variables_array_intensity_array, p0=[0.5, 1.5, 0.
     param_ranges = [[min_rho,max_rho],[min_n,max_n],[min_gamma,max_gamma]]
     if len(fit_params_log)>3: param_ranges.append([np.exp(fit_params_log[3]-errs[3]),np.exp(fit_params_log[3]+errs[3])])
     print("Min and max values: \n",param_ranges)
-	
+    
     params = [np.exp(fit_params_log[0]), np.exp(fit_params_log)[1] + 1, np.exp(fit_params_log[2])]
     if len(fit_params_log)>3: params.append(np.exp(fit_params_log[3]))
     return params
@@ -538,6 +559,8 @@ def fit_parameters_and_angle_with_starting_theta_i(points, starting_theta_i, ave
 
 # Calculates hemispherical reflectance for a given incident angle
 # Note that specular lobe depends on whether specular spike is included or not
+# Warning! 2D integration of specular component seems to fail for models in LXe
+# Use reflectance_specular separately in that case
 def reflectance(theta_i_in_degrees, n_0, polarization, parameters):
 
     theta_i = theta_i_in_degrees * np.pi / 180
@@ -563,12 +586,12 @@ def reflectance(theta_i_in_degrees, n_0, polarization, parameters):
         
     return scipy.integrate.dblquad(BRIDF_int, -np.pi, np.pi, a, b)[0] + spec_spike
 
-# TODO: check if 1/G is supposed to go here
+# Calculates diffuse hemispherical reflectance for a given incident angle
 def reflectance_diffuse(theta_i_in_degrees, n_0, polarization, parameters):
 
     theta_i = theta_i_in_degrees * np.pi / 180
 
-    a = lambda x: 0
+    a = lambda x: 0 # Limits for theta_r
     b = lambda x: np.pi / 2
 
     def BRIDF_int(theta_r, phi_r):
@@ -577,9 +600,21 @@ def reflectance_diffuse(theta_i_in_degrees, n_0, polarization, parameters):
         # sin(theta_r) is from solid angle, G is to correct for the fact that shadowed/masked light ends up reflected, see eq. 16 of Silva 2009 Xe scintillation
         return BRIDF_diffuse(theta_r, phi_r, theta_i, n_0, polarization, parameters) * np.sin(theta_r) / G
 
-    return scipy.integrate.dblquad(BRIDF_int, -np.pi, np.pi, a, b)[0]
+    #theta_r_list = np.linspace(0.,np.pi/2,100)
+    #BRIDF_list = [BRIDF_diffuse(theta_r, 0., theta_i, n_0, polarization, parameters, precision=-1) * np.sin(theta_r) / G_calc(theta_r, 0., theta_i, n_0, polarization, parameters) for theta_r in theta_r_list]
+    #G_list = [G_calc(theta_r, 0., theta_i, n_0, polarization, parameters) for theta_r in theta_r_list]
+    # plt.plot(theta_r_list,BRIDF_list )
+    # plt.plot(theta_r_list,G_list )
+    # plt.show()
+    integral_results = scipy.integrate.dblquad(BRIDF_int, -np.pi, np.pi, a, b)
+    #print("2D integral result: ",integral_results[0])
+    #print("2D integral error: ",integral_results[1])
+    return integral_results[0]
 
+# Calculates diffuse hemispherical reflectance for a given incident angle
 # Note that specular lobe depends on whether specular spike is included or not
+# Warning! 2D integration of specular component seems to fail for models in LXe
+# Uses sum of 1D integrals in that case
 def reflectance_specular(theta_i_in_degrees, n_0, polarization, parameters):
 
     theta_i = theta_i_in_degrees * np.pi / 180
@@ -601,13 +636,41 @@ def reflectance_specular(theta_i_in_degrees, n_0, polarization, parameters):
         C = specular_spike_norm(theta_i, theta_i, K)
         F_ = F(theta_i, n_0, n, polarization)
         spec_spike = C * F_
-        
-    return scipy.integrate.dblquad(BRIDF_int, -np.pi, np.pi, a, b)[0] + spec_spike
+
+    if n_0>parameters[1]: # If medium index is higher than sample, use 1D integrals instead
+        phi_r_list = np.linspace(-np.pi,np.pi,500)
+        d_phi = np.pi*2/500
+        # theta_r_list = np.linspace(0.,np.pi/2,100)
+        # BRIDF_list = [BRIDF_specular(theta_r, 0., theta_i, n_0, polarization, parameters, precision=-1) * np.sin(theta_r) / G_calc(theta_r, 0., theta_i, n_0, polarization, parameters) for theta_r in theta_r_list]
+        # G_list = [G_calc(theta_r, 0., theta_i, n_0, polarization, parameters) for theta_r in theta_r_list]
+        # plt.plot(theta_r_list,BRIDF_list )
+        # plt.plot(theta_r_list,G_list )
+        # plt.show()
+        one_d_int_results = [scipy.integrate.quad(BRIDF_int,0.,np.pi/2,phi,full_output=1) for phi in phi_r_list]
+        one_d_ints = [int_result[0] for int_result in one_d_int_results]
+        #print("Integrals for each slice in phi_r: ", one_d_ints)
+        sum_integral = sum(one_d_ints)*d_phi
+        # print("Summed integrals, times d_phi: ",sum_integral)
+        # print("Summed integral error, times d_phi: ",sum([int_result[1] for int_result in one_d_int_results])*d_phi)
+        return sum_integral + spec_spike
+    else:
+        integral_results = scipy.integrate.dblquad(BRIDF_int, -np.pi, np.pi, a, b)
+        #print("2D integral error: ",integral_results[1])
+        #print("2D integral result: ",integral_results[0])
+        #print("Integral evaluation points: ", integral_results[2]['alist'])
+        return integral_results[0] + spec_spike
+    
 
 # uses 3d grid of parameters
 # independent variables array has as elements lists of independent variables for each point
 # at each point, it has the form [theta_r_in_degrees, phi_r_in_degrees, theta_i_in_degrees, n_0, polarization]
-def fit_parameters_new(independent_variables_array, intensity_array, std_array, rho_start, rho_end, rho_num, n_start, n_end, n_num, gamma_start, gamma_end, gamma_num, plot=True, show=True):
+# also included in first argument are the intensity values and their errors
+def fit_parameters_grid(independent_variables_array_intensity_array, rho_start, rho_end, rho_num, n_start, n_end, n_num, gamma_start, gamma_end, gamma_num, average_angle=0, precision=-1, plot=True, show=True):
+    independent_variables_array = independent_variables_array_intensity_array[0]
+    #print(independent_variables_array)
+    intensity_array = independent_variables_array_intensity_array[1]
+    std_array = independent_variables_array_intensity_array[2]
+    
     rho_array = np.linspace(rho_start, rho_end, rho_num)
     n_array = np.linspace(n_start, n_end, n_num)
     gamma_array = np.linspace(gamma_start, gamma_end, gamma_num)
@@ -623,7 +686,7 @@ def fit_parameters_new(independent_variables_array, intensity_array, std_array, 
     chi2 = []
     for i in range(len(grid_points)):
         grid_point = grid_points[i]
-        chi2.append(chi_squared(independent_variables_array, intensity_array, std_array, grid_point))
+        chi2.append(chi_squared(independent_variables_array, intensity_array, std_array, grid_point, average_angle=average_angle, precision=precision))
         if i%10 == 0:
             print(str(i) + "/" + str(length))
 
@@ -658,19 +721,17 @@ def fit_parameters_new(independent_variables_array, intensity_array, std_array, 
 
     return grid_points[min_index]
 
-def chi_squared(independent_variables_array, intensity_array, std_array, grid_point):
-    # assumes entire array is at one incident angle and external index of refraction
-    theta_i_in_degrees = independent_variables_array[0][2] 
-    n_0 = independent_variables_array[0][3]
-
-    # assumes data is 85 degrees to 0 degrees in 1 degree increments
-    theta_r_in_degrees_array = np.linspace(85, 0, 86)
-
-    fit = BRIDF_plotter(theta_r_in_degrees_array, 0, theta_i_in_degrees, n_0, 0.5, grid_point, average_angle=0, precision=-1, sigma_theta_i=0)
-
-    chi2 = 0
-    for i in range(len(fit)):
-        chi2 += (fit[i] - intensity_array[i]) * (fit[i] - intensity_array[i]) / (std_array[i] * std_array[i])
+# Returns chi^2/degrees of freedom for the given data set and fit parameters
+def chi_squared(independent_variables_array, intensity_array, std_array, parameters, average_angle=0, precision=-1):
+    params_log = [np.log(parameters[0]), np.log(parameters[1]-1), np.log(parameters[2])]
+    if len(parameters)>3: 
+        if parameters[3]>0: params_log.append(np.log(parameters[3]))
+    
+    independent_variables_array = [list+[precision,average_angle] for list in independent_variables_array]
+    
+    fitter_popt = fitter(independent_variables_array, *params_log)
+    chi2 = np.sum(((np.array(intensity_array) - np.array(fitter_popt))/std_array)**2)/(len(intensity_array)-len(params_log))
+    #print("Fit reduced chi^2: ",chi2_fit_popt)
 
     return chi2
 

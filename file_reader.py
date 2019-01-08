@@ -10,8 +10,9 @@ class Run:
 		lines = file.readlines()
 		data = np.loadtxt(path + filename, skiprows=12)
 		self.angles = [datum[0] for datum in data]
-		bkg = 150 # constant background from e.g. dark rate; 500 for initial Spectralon 400 nm data, 100 for 500 nm data
+		bkg = 70 # constant background from e.g. dark rate; 500 for initial Spectralon 400 nm data, 100 for 500 nm data
 		# chosen to be slightly less than lowest rate during background measurement in LXe
+		# Have been using 70 for 1st/2nd run LXe data at 178 nm, 150 for vacuum data at 178/175 nm
 		self.intensities = [datum[1]-bkg for datum in data]
 		self.intensity_std = [datum[2] for datum in data]
 
@@ -27,7 +28,7 @@ class Run:
 		self.temperature = float(lines[10][13:-1])
 		self.pressure = float(lines[11][10:-1])
 		self.relative_intensities = [intensity*intensity_factor(self.incidentpower) for intensity in self.intensities]
-		const_err = 100 # error to add to std from e.g. error on background
+		const_err = 300 # error to add to std from e.g. error on background; using 300 for 1st/2nd run LXe data at 178 nm, 100 for vacuum at 178/175 nm
 		self.relative_std = [(std+const_err)*intensity_factor(self.incidentpower) for std in self.intensity_std]
 
 		self.rot_angles = [180. - self.incidentangle - a for a in self.angles]
@@ -57,7 +58,7 @@ def intensity_factor(incidentpower):
 	# for 400 nm, bkg of 500, err of 100 (closer match to background measurement at 405 nm, similar power), get 2.44
 	# for 500 nm, bkg of 100, err of 100 (closer match to bkg at 500 nm when scaled by power, but taken a month later), get 2.61
 	# for 500 nm, bkg of 150, err of 100 (background at 405 nm from same day, but scaled by power), get 2.54
-	photodiode_angular_radius = 2.54 #degrees; old plots used 4.0 incorrectly
+	photodiode_angular_radius = 2.44 #degrees; old plots used 4.0 incorrectly
 	photodiode_angular_size = photodiode_angular_radius * np.pi / 180.
 
 	photodiode_solid_angle = np.pi * np.power(photodiode_angular_size, 2)
