@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#path = "/Users/leehagaman/Desktop/OpticalPlotting/"
-path = "C:\\Users\\swkra\\OneDrive\\Documents\\GitHub\\OpticalPlotting\\"
+path = "/Users/leehagaman/Desktop/OpticalPlotting/"
+#path = "C:\\Users\\swkra\\OneDrive\\Documents\\GitHub\\OpticalPlotting\\"
 
 class Run:
-	def __init__(self, filename):
+	def __init__(self, filename, mirror_filenames_and_angles=[]):
 		file = open(path + filename)
 		lines = file.readlines()
 		data = np.loadtxt(path + filename, skiprows=12)
@@ -23,7 +23,8 @@ class Run:
 		self.sampleid = lines[5][11:-1]
 		self.preampsensitivity = float(lines[6][20:-1]) * 1e-9
 		self.incidentangle = float(lines[7][16:-1])
-		self.incidentpower = float(lines[8][16:-1])
+		self.uncorrectedincidentpower = float(lines[8][16:-1])
+		self.incidentpower = self.uncorrectedincidentpower * incident_power_factor_function(mirror_filenames_and_angles)(self.incidentangle)
 		self.wavelength = float(lines[9][12:-1])
 		self.temperature = float(lines[10][13:-1])
 		self.pressure = float(lines[11][10:-1])
@@ -48,6 +49,56 @@ class Run:
 		self.angles = [angle-delta_theta for angle in self.angles] # If incident angle increases, angles relative to normal decrease
 		self.independent_variables_array = [[list[0]-delta_theta]+list[1:] for list in self.independent_variables_array]
 		self.incidentangle = new_theta_i
+
+# this uses a mirror test to see how much of the beam power is lost at a certain incident angle, presumably
+# due to the beam missing part of the sample and hitting the sample rack or back of the chamber. So this should be
+# a different file for each incident angle and change in alignment of the sample rack. This file must have an accurate
+# incident power stored in the file.
+def incident_power_factor(mirror_incident_power, mirror_filename):
+	mirror_data = np.loadtxt(path + mirror_filename, skiprows=12)
+
+	mirror_intensities = [datum[1] for datum in mirror_data]
+	max_mirror_intensity = np.max(mirror_intensities)
+
+	return max_mirror_intensity / mirror_incident_power
+
+
+# takes in an incident power file and a list of pairs of incident angles and mirror test filenames,
+# returns a list of pairs of incident angles and incident power factors
+def incident_power_factor_list(mirror_incident_power_filename, mirror_incident_angle_and_filename_list):
+	mirror_incident_power_data = np.loadtxt(path + mirror_incident_power_filename, skiprows=12)
+	mirror_incident_power_intensities = [datum[1] for datum in mirror_incident_power_data]
+	mirror_incident_power = np.max(mirror_incident_power_intensities)
+
+	lst = []
+
+	for i in range(len(mirror_incident_angle_and_filename_list)):
+		lst.append([mirror_incident_angle_and_filename_list[i][0], 
+			incident_power_factor(mirror_incident_power, mirror_incident_angle_and_filename_list[i][1])])
+	return lst
+
+# retuns a function which gives incident power factor as a function of incident angle by interpolating between the points in incident_power_factor_list
+def incident_power_factor_function(mirror_filenames_and_angles):
+	if mirror_filenames_and_angles == []:
+		return lambda x : 1
+	mirror_incident_power_filename = mirror_filenames_and_angles[0]
+	mirror_incident_angle_and_filename_list = mirror_filenames_and_angles[1]
+
+	lst = incident_power_factor_list(mirror_incident_power_filename, mirror_incident_angle_and_filename_list)
+	angles = [pair[0] for pair in lst]
+	factors = [pair[1] for pair in lst]
+	def ret(theta):
+		if theta <= np.min(angles):
+			return factors[0]
+		if theta >= np.max(angles):
+			return factors[-1]
+		for i in range(len(lst)):
+			if angles[i] <= theta < angles[i + 1]:
+				return factors[i] + (angles[i + 1] - angles[i]) * (factors[i + 1] - factors[i]) / (angles[i + 1] - angles[i]) # interpolating
+		print("error, failed to interpolate")
+		return 0 #failed to interpolate, should never happen
+	return ret
+
 
 def intensity_factor(incidentpower):
 	
