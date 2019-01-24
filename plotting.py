@@ -135,7 +135,7 @@ def plot_double_TSTR_fit(theta_i, n, fit_params, labels=[], colors="", average_a
 	fit_params_1 = fit_params[0:4]
 	gamma_2 = fit_params[4]
 	frac_1 = fit_params[5]
-	fit_params_2 = [0., 1., gamma_2] # don't include specular spike
+	fit_params_2 = [fit_params[0], 1.01, gamma_2] # don't include specular spike; rho_2 = rho_1; n_2 = 1+eps to avoid log errors
 
 	min_angle = 0
 	max_angle = 85
@@ -152,14 +152,14 @@ def plot_double_TSTR_fit(theta_i, n, fit_params, labels=[], colors="", average_a
 		plt.plot(x, y, color=colors[0])
 
 	if labels:
-		plt.plot(x, y_1, label=labels[1], color=colors[1])
+		plt.plot(x, y_1, label=labels[1], color=colors[1], linestyle='--')
 	else:
-		plt.plot(x, y_1, color=colors[1])
+		plt.plot(x, y_1, color=colors[1], linestyle='--')
 
 	if labels:
-		plt.plot(x, y_2, label=labels[2], color=colors[2])
+		plt.plot(x, y_2, label=labels[2], color=colors[2], linestyle='-.')
 	else:
-		plt.plot(x, y_2, color=colors[2])
+		plt.plot(x, y_2, color=colors[2], linestyle='-.')
 
 	rho_L_1 = fit_params_1[0]
 	n_1 = fit_params_1[1]
