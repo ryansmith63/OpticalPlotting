@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from file_reader import Run, get_independent_variables_and_relative_intensities
 from plotting import plot_runs, plot_TSTR_fit
-from TSTR_fit_new import fit_parameters, fit_parameters_and_angle, BRIDF_plotter, reflectance_diffuse, reflectance_specular, BRIDF
+from TSTR_fit_new import fit_parameters, fit_parameters_and_angle, fitter, BRIDF_plotter, reflectance_diffuse, reflectance_specular, BRIDF
 import time
 
 path_run1 = "First Xe Run Measurements\\first measurements with no bubbles in cell 11-01-2\\"
@@ -75,8 +75,10 @@ path = "2nd Xenon Run Measurements\\"
 s9_lowp_30 = Run(path + "Sample 9 lower pressure\\2018_12_05__13_52_04.txt")
 s9_lowp_45 = Run(path + "Sample 9 lower pressure\\2018_12_05__13_47_09.txt")
 s9_lowp_52 = Run(path + "Sample 9 lower pressure\\2018_12_05__13_42_21.txt")
-s9_lowp_60 = Run(path + "Sample 9 lower pressure\\2018_12_05__13_37_31.txt") 
+s9_lowp_60 = Run(path + "Sample 9 lower pressure\\2018_12_05__13_37_31.txt")
+s9_lowp_60.change_theta_i(60) 
 s9_lowp_67 = Run(path + "Sample 9 lower pressure\\2018_12_05__13_32_47.txt")
+s9_lowp_67.change_theta_i(67)
 s9_lowp_75 = Run(path + "Sample 9 lower pressure\\2018_12_05__13_27_55.txt")
 # s9_lowp2_30 = Run(path + "Sample 9 lower pressure 2\\2018_12_07__13_28_41.txt")
 # s9_lowp2_45 = Run(path + "Sample 9 lower pressure 2\\2018_12_07__13_23_51.txt")
@@ -116,12 +118,12 @@ s9_lowp_75 = Run(path + "Sample 9 lower pressure\\2018_12_05__13_27_55.txt")
 # s9_lowp_above_75 = Run(path + "Sample 9 1-8_ above center\\2018_12_07__11_12_10.txt")
 
 
-runs = [s9_lowp_30,s9_lowp_45,s9_lowp_52,s9_lowp_60,s9_lowp_67,s9_lowp_75]#[s9_lowp_30,s9_lowp2_30,s9_medp_30,s9_medp2_30,s9_hip_30,s9_hip2_30]#[s9_medp2_30,s9_medp2_45,s9_medp2_52,s9_medp2_60,s9_medp2_67,s9_medp2_75,s9_hip2_30,s9_hip2_45,s9_hip2_52,s9_hip2_60,s9_hip2_67,s9_hip2_75]#[s9_lowp2_30,s9_lowp2_45,s9_lowp2_52,s9_lowp2_60,s9_lowp2_67,s9_lowp2_75,s9_medp2_30,s9_medp2_45,s9_medp2_52,s9_medp2_60,s9_medp2_67,s9_medp2_75,s9_hip2_30,s9_hip2_45,s9_hip2_52,s9_hip2_60,s9_hip2_67,s9_hip2_75]#[s9_lowp_30,s9_lowp_45,s9_lowp_52,s9_lowp_60,s9_lowp_67,s9_lowp_75,s9_lowp_above_30,s9_lowp_above_45,s9_lowp_above_52,s9_lowp_above_60,s9_lowp_above_67,s9_lowp_above_75]#[s9_lowp_75,s9_medp_75,s9_hip_75]#[s9_medp_30,s9_medp_45,s9_medp_52,s9_medp_60,s9_medp_67,s9_medp_75,s9_hip_30,s9_hip_45,s9_hip_52,s9_hip_60,s9_hip_67,s9_hip_75]#[s9_lowp_30,s9_lowp_45,s9_lowp_52,s9_lowp_60,s9_lowp_67,s9_lowp_75,s9_medp_30,s9_medp_45,s9_medp_52,s9_medp_60,s9_medp_67,s9_medp_75,s9_hip_30,s9_hip_45,s9_hip_52,s9_hip_60,s9_hip_67,s9_hip_75]#[s5_30,s5_45,s5_52,s5_60,s5_67,s5_75]#[s9_nobubbles_30,s9_nobubbles_45,s9_nobubbles_52,s9_nobubbles_60,s9_nobubbles_67,s9_nobubbles_75,s9_getter_30,s9_getter_45,s9_getter_52,s9_getter_60,s9_getter_67,s9_getter_75]#[s9_first_30,s9_first_45,s9_first_52,s9_first_60,s9_first_67,s9_first_75,s9_nobubbles_30,s9_nobubbles_45,s9_nobubbles_52,s9_nobubbles_60,s9_nobubbles_67,s9_nobubbles_75]#
-labels=["30 degrees", "45 degrees", "52 degrees", "60 degrees", "67 degrees", "75 degrees"]#["0.2 barg","0.2 barg fixed","1.0 barg","1.0 barg fixed","1.5 barg","1.5 barg fixed"]#["1.0 barg, 30 deg","1.0 barg, 45 deg","1.0 barg, 52 deg","1.0 barg, 60 deg","1.0 barg, 67 deg","1.0 barg, 75 deg","1.5 barg, 30 deg","1.5 barg, 45 deg","1.5 barg, 52 deg","1.5 barg, 60 deg","1.5 barg, 67 deg","1.5 barg, 75 deg"]#["0.2 barg, 30 deg","0.2 barg, 45 deg","0.2 barg, 52 deg","0.2 barg, 60 deg","0.2 barg, 67 deg","0.2 barg, 75 deg","1.0 barg, 30 deg","1.0 barg, 45 deg","1.0 barg, 52 deg","1.0 barg, 60 deg","1.0 barg, 67 deg","1.0 barg, 75 deg","1.5 barg, 30 deg","1.5 barg, 45 deg","1.5 barg, 52 deg","1.5 barg, 60 deg","1.5 barg, 67 deg","1.5 barg, 75 deg"]#["center, 30 deg","center, 45 deg","center, 52 deg","center, 60 deg","center, 67 deg","center, 75 deg","1/8\" above, 30 deg","1/8\" above, 45 deg","1/8\" above, 52 deg","1/8\" above, 60 deg","1/8\" above, 67 deg","1/8\" above, 75 deg"]#["0.2 barg","1.0 barg","1.5 barg"]#["1.0 barg, 30 deg","1.0 barg, 45 deg","1.0 barg, 52 deg","1.0 barg, 60 deg","1.0 barg, 67 deg","1.0 barg, 75 deg","1.5 barg, 30 deg","1.5 barg, 45 deg","1.5 barg, 52 deg","1.5 barg, 60 deg","1.5 barg, 67 deg","1.5 barg, 75 deg"]#["0.2 barg, 30 deg","0.2 barg, 45 deg","0.2 barg, 52 deg","0.2 barg, 60 deg","0.2 barg, 67 deg","0.2 barg, 75 deg","1.0 barg, 30 deg","1.0 barg, 45 deg","1.0 barg, 52 deg","1.0 barg, 60 deg","1.0 barg, 67 deg","1.0 barg, 75 deg","1.5 barg, 30 deg","1.5 barg, 45 deg","1.5 barg, 52 deg","1.5 barg, 60 deg","1.5 barg, 67 deg","1.5 barg, 75 deg"]#["30 deg","45 deg","52 deg","60 deg","67 deg","75 deg"]#["before getter, 30 deg", "before getter, 45 deg", "before getter, 52 deg", "before getter, 60 deg", "before getter, 67 deg", "before getter, 75 deg", "after getter, 30 deg", "after getter, 45 deg", "after getter, 52 deg", "after getter, 60 deg", "after getter, 67 deg", "after getter, 75 deg"]#["75 degrees"]#["run 1, 30 deg", "run 1, 45 deg", "run 1, 52 deg", "run 1, 60 deg", "run 1, 67 deg", "run 1, 75 deg", "run 2, 30 deg", "run 2, 45 deg", "run 2, 52 deg", "run 2, 60 deg", "run 2, 67 deg", "run 2, 75 deg"]#
+runs = [s9_lowp_30, s9_lowp_45, s9_lowp_52, s9_lowp_60,s9_lowp_67,s9_lowp_75]#[s9_lowp_30,s9_lowp2_30,s9_medp_30,s9_medp2_30,s9_hip_30,s9_hip2_30]#[s9_medp2_30,s9_medp2_45,s9_medp2_52,s9_medp2_60,s9_medp2_67,s9_medp2_75,s9_hip2_30,s9_hip2_45,s9_hip2_52,s9_hip2_60,s9_hip2_67,s9_hip2_75]#[s9_lowp2_30,s9_lowp2_45,s9_lowp2_52,s9_lowp2_60,s9_lowp2_67,s9_lowp2_75,s9_medp2_30,s9_medp2_45,s9_medp2_52,s9_medp2_60,s9_medp2_67,s9_medp2_75,s9_hip2_30,s9_hip2_45,s9_hip2_52,s9_hip2_60,s9_hip2_67,s9_hip2_75]#[s9_lowp_30,s9_lowp_45,s9_lowp_52,s9_lowp_60,s9_lowp_67,s9_lowp_75,s9_lowp_above_30,s9_lowp_above_45,s9_lowp_above_52,s9_lowp_above_60,s9_lowp_above_67,s9_lowp_above_75]#[s9_lowp_75,s9_medp_75,s9_hip_75]#[s9_medp_30,s9_medp_45,s9_medp_52,s9_medp_60,s9_medp_67,s9_medp_75,s9_hip_30,s9_hip_45,s9_hip_52,s9_hip_60,s9_hip_67,s9_hip_75]#[s9_lowp_30,s9_lowp_45,s9_lowp_52,s9_lowp_60,s9_lowp_67,s9_lowp_75,s9_medp_30,s9_medp_45,s9_medp_52,s9_medp_60,s9_medp_67,s9_medp_75,s9_hip_30,s9_hip_45,s9_hip_52,s9_hip_60,s9_hip_67,s9_hip_75]#[s5_30,s5_45,s5_52,s5_60,s5_67,s5_75]#[s9_nobubbles_30,s9_nobubbles_45,s9_nobubbles_52,s9_nobubbles_60,s9_nobubbles_67,s9_nobubbles_75,s9_getter_30,s9_getter_45,s9_getter_52,s9_getter_60,s9_getter_67,s9_getter_75]#[s9_first_30,s9_first_45,s9_first_52,s9_first_60,s9_first_67,s9_first_75,s9_nobubbles_30,s9_nobubbles_45,s9_nobubbles_52,s9_nobubbles_60,s9_nobubbles_67,s9_nobubbles_75]#
+labels=["30 degrees","45 degrees","52 degrees","60 degrees", "67 degrees", "75 degrees"]#["0.2 barg","0.2 barg fixed","1.0 barg","1.0 barg fixed","1.5 barg","1.5 barg fixed"]#["1.0 barg, 30 deg","1.0 barg, 45 deg","1.0 barg, 52 deg","1.0 barg, 60 deg","1.0 barg, 67 deg","1.0 barg, 75 deg","1.5 barg, 30 deg","1.5 barg, 45 deg","1.5 barg, 52 deg","1.5 barg, 60 deg","1.5 barg, 67 deg","1.5 barg, 75 deg"]#["0.2 barg, 30 deg","0.2 barg, 45 deg","0.2 barg, 52 deg","0.2 barg, 60 deg","0.2 barg, 67 deg","0.2 barg, 75 deg","1.0 barg, 30 deg","1.0 barg, 45 deg","1.0 barg, 52 deg","1.0 barg, 60 deg","1.0 barg, 67 deg","1.0 barg, 75 deg","1.5 barg, 30 deg","1.5 barg, 45 deg","1.5 barg, 52 deg","1.5 barg, 60 deg","1.5 barg, 67 deg","1.5 barg, 75 deg"]#["center, 30 deg","center, 45 deg","center, 52 deg","center, 60 deg","center, 67 deg","center, 75 deg","1/8\" above, 30 deg","1/8\" above, 45 deg","1/8\" above, 52 deg","1/8\" above, 60 deg","1/8\" above, 67 deg","1/8\" above, 75 deg"]#["0.2 barg","1.0 barg","1.5 barg"]#["1.0 barg, 30 deg","1.0 barg, 45 deg","1.0 barg, 52 deg","1.0 barg, 60 deg","1.0 barg, 67 deg","1.0 barg, 75 deg","1.5 barg, 30 deg","1.5 barg, 45 deg","1.5 barg, 52 deg","1.5 barg, 60 deg","1.5 barg, 67 deg","1.5 barg, 75 deg"]#["0.2 barg, 30 deg","0.2 barg, 45 deg","0.2 barg, 52 deg","0.2 barg, 60 deg","0.2 barg, 67 deg","0.2 barg, 75 deg","1.0 barg, 30 deg","1.0 barg, 45 deg","1.0 barg, 52 deg","1.0 barg, 60 deg","1.0 barg, 67 deg","1.0 barg, 75 deg","1.5 barg, 30 deg","1.5 barg, 45 deg","1.5 barg, 52 deg","1.5 barg, 60 deg","1.5 barg, 67 deg","1.5 barg, 75 deg"]#["30 deg","45 deg","52 deg","60 deg","67 deg","75 deg"]#["before getter, 30 deg", "before getter, 45 deg", "before getter, 52 deg", "before getter, 60 deg", "before getter, 67 deg", "before getter, 75 deg", "after getter, 30 deg", "after getter, 45 deg", "after getter, 52 deg", "after getter, 60 deg", "after getter, 67 deg", "after getter, 75 deg"]#["75 degrees"]#["run 1, 30 deg", "run 1, 45 deg", "run 1, 52 deg", "run 1, 60 deg", "run 1, 67 deg", "run 1, 75 deg", "run 2, 30 deg", "run 2, 45 deg", "run 2, 52 deg", "run 2, 60 deg", "run 2, 67 deg", "run 2, 75 deg"]#
 
 # Plot BRIDF data
 sample_name="LZ Skived"
-plot_runs(runs, title=sample_name+" in 1.45 barg LXe, 178 nm", log=True, labels=labels, include_legend=False, errorbars=True, legend_loc=0)
+plot_runs(runs, title=sample_name+" in 0.2 barg LXe, 178 nm", log=True, labels=labels, include_legend=False, errorbars=True, legend_loc=0)
 # plt.text(0.88,0.88,r"$75^{\circ}$",transform=plt.gca().transAxes,fontsize=13) # Positions for s9 low_p
 # plt.text(0.85,0.78,r"$67^{\circ}$",transform=plt.gca().transAxes,fontsize=13)
 # plt.text(0.8,0.62,r"$60^{\circ}$",transform=plt.gca().transAxes,fontsize=13)
@@ -143,11 +145,14 @@ plot_runs(runs, title=sample_name+" in 1.45 barg LXe, 178 nm", log=True, labels=
 t0=time.time()
 
 # Fit data
-fit_params = fit_parameters(get_independent_variables_and_relative_intensities(runs),p0=[0.8,1.54,.13],average_angle=4., precision=0.25,use_errs=True,use_spike=False,bounds=([0.01,1.01,0.05],[2.0,3.0,0.5]))#[0.5,1.4,0.1],[1.0,1.8,0.3]#[0.,1.,0.05],[2.0,3.0,0.5]
+# tmp1=np.arange(10)
+# tmp2=np.arange(4,14)
+# print(tmp1,tmp2,np.linspace(tmp1,tmp2,1))
+fit_params = fit_parameters(get_independent_variables_and_relative_intensities(runs),p0=[0.99,1.54,.15],average_angle=4, precision=.25, sigma_theta_i=-1., use_errs=True,use_spike=False,bounds=([0.5,1.4,0.04],[1.2,1.8,0.3]))#[0.5,1.4,0.04,5.0],[1.2,1.8,0.3,50.]#[0.5,1.4,0.1],[1.0,1.8,0.3]#[0.01,1.01,0.05],[2.0,3.0,0.5]
 #fit_params_ang = fit_parameters_and_angle(get_independent_variables_and_relative_intensities(runs),average_angle=4.)
 #fit_ang = fit_params_ang[0]
 #fit_params = fit_params_ang[1:]
-# fit_params=[0.800,1.581,0.157]#
+#fit_params=[1.013, 1.560, 0.0857]#[0.784,1.568,0.144]#[0.86,1.50,0.07]#[0.72,1.45,0.2]#[0.800,1.581,0.157]#
 # # Fitted parameters for s9 2.44 solid angle factor
 # fit_params_lowp=[0.784,1.568,0.144]
 # fit_params_lowp2=[0.892,1.563,0.176]
@@ -158,18 +163,27 @@ print("Fit parameters (rho_L, n, gamma): "+str(fit_params))
 #print("Fit angle: "+str(fit_ang))
 t1=time.time()
 print("Fitting time: {0}".format(t1-t0))
+# phi_r_list = np.linspace(-np.pi,np.pi,10)
+# BRIDF_test_list = [BRIDF(52., phi_r, 0., 1.69, 0.5, fit_params) for phi_r in phi_r_list]
+# print("BRIDF at normal incidence and viewing: ",BRIDF_test_list)
 
 # Plot BRIDF model from fits
 n_LXe_178 = 1.69
-sigma_theta_i=-1
+sigma_theta_i=-1#2.
 precision=0.25
-average_angle=4.
+average_angle=4
+#plot_TSTR_fit(20., n_LXe_178, fit_params, color="r", average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i)
 plot_TSTR_fit(30., n_LXe_178, fit_params, label="fitted", color="r", average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i)
 plot_TSTR_fit(45., n_LXe_178, fit_params, color="g", average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i)
 plot_TSTR_fit(52., n_LXe_178, fit_params, color="b", average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i)
 plot_TSTR_fit(60., n_LXe_178, fit_params, color="m", average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i)
+#independent_variables_array = get_independent_variables_and_relative_intensities(runs)[0]
+#independent_variables_array = [list+[sigma_theta_i,precision,average_angle] for list in independent_variables_array]
+#print([list[2] for list in independent_variables_array])
+#theta_r_list = [list[0] for list in independent_variables_array]
+#plt.plot(theta_r_list,fitter(independent_variables_array, np.log(fit_params[0]),np.log(fit_params[1]-1),np.log(fit_params[2])),color="y")
 plot_TSTR_fit(67., n_LXe_178, fit_params, color="c", average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i)
-plot_TSTR_fit(75., n_LXe_178, fit_params, color="y", average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i,phi_r=0)
+plot_TSTR_fit(75., n_LXe_178, fit_params, color="y", average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i)
 # plot_TSTR_fit(75., n_LXe_178, fit_params, color="y", average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i,phi_r=5)
 # plot_TSTR_fit(75., n_LXe_178, fit_params, color="y", average_angle=average_angle, precision=precision, sigma_theta_i=sigma_theta_i,phi_r=10)
 #plt.text(0.1,0.1,r"Fit: $\rho_L$={0:.3f}, n={1:.2f}, $\gamma$={2:.3f}".format(*fit_params),transform=plt.gca().transAxes,fontsize=13)
@@ -181,49 +195,67 @@ print("Plotting time: {0}".format(t2-t1))
 # plt.figure()
 
 # # Different incident angles to calculate for
-# x = [0,10,20,30, 45.1, 55, 60, 65, 70, 75, 80, 85]#[0,30,45.1,60,70,75,80,85]#[5,60,70,80]#[5,30, 45, 60, 70, 75, 80, 85]#[0,10,20,30, 45, 55, 60, 65, 70, 75, 80, 85]#
+# x = [0,5]#[0,10,20,30, 45.1, 55, 60, 65, 70, 75, 80, 85]#[0,30,45.1,60,70,75,80,85]#[5,60,70,80]#[5,30, 45, 60, 70, 75, 80, 85]#[0,10,20,30, 45, 55, 60, 65, 70, 75, 80, 85]#
 
-# # y_diffuse = [reflectance_diffuse(theta, n_LXe_178, 0.5, fit_params) for theta in x]
-# # y_specular = [reflectance_specular(theta, n_LXe_178, 0.5, fit_params) for theta in x]
-# # y_total = [y_diffuse[i] + y_specular[i] for i in range(len(y_specular))]
+# y_diffuse = [reflectance_diffuse(theta, n_LXe_178, 0.5, fit_params) for theta in x]
+# y_specular = [reflectance_specular(theta, n_LXe_178, 0.5, fit_params) for theta in x]
+# y_total = [y_diffuse[i] + y_specular[i] for i in range(len(y_specular))]
 
-# # print("Diffuse reflectances: ",y_diffuse)
-# # print("Specular reflectances: ",y_specular)
-# y_diffuse_vacuum_before=[0.45766348181118743, 0.4580440040036757, 0.45840578569295093, 0.458373743496906, 0.45519279945081914, 0.4467776090150314, 0.4382352346643636, 0.42459365404619115, 0.4030226445070669, 0.3691595655515466, 0.31672576341572695, 0.23997195829098059]
-# y_specular_vacuum_before=[0.06255417549996851, 0.06265684345501554, 0.06321515540210665, 0.06512830173742697, 0.07570232176333869, 0.09608785701329016, 0.11458965758798859, 0.14207103191906068, 0.1823613281476766, 0.240653361837574, 0.3259507169947907, 0.4865190393937654]
-# y_total_vacuum_before = [sum(x) for x in zip(y_specular_vacuum_before,y_diffuse_vacuum_before)]
-# y_diffuse_LXe_lowp=[0.6570412916757591, 0.6579357341415137, 0.6591016792259574, 0.6606138318516783, 0.6633688576680011, 0.6626957378115929, 0.6549616061782121, 0.6062281312066095, 0.0, 0.0, 0.0, 0.0]
-# y_specular_LXe_lowp= [0.0014054544422652119, 0.0014218233642250282, 0.0015141490462703899, 0.0018695965399099326, 0.0057283880366878585, 0.03827531730547219, 0.09984977500055535, 0.25165997130973317, 0.5000189208911733, 0.6960823791225147, 0.8249335365771578, 1.0]#1.0750904931429557]
-# y_total_LXe_lowp = [sum(x) for x in zip(y_specular_LXe_lowp,y_diffuse_LXe_lowp)]
-# y_diffuse_LXe_lowp2= [0.7402398286291142, 0.7417007202832876, 0.7436238363017107, 0.7461638687993092, 0.7512130151093066, 0.752163989934962, 0.7433876636862394, 0.6765365007371161, 0.0, 0.0, 0.0, 0.0]
-# y_specular_LXe_lowp2= [0.001527762931549758, 0.0015516293860655497, 0.0016747374647144962, 0.0021276141278918324, 0.007227369888786746, 0.04961757416725003, 0.11917259018207207, 0.2626128326744476, 0.4667668545228056, 0.6430628471896185, 0.7907470379047791, 1.0]#1.0997835008723356]
-# y_total_LXe_lowp2 = [sum(x) for x in zip(y_specular_LXe_lowp2,y_diffuse_LXe_lowp2)]
-# y_diffuse_LXe_hip= [0.6829307222870662, 0.6840336258528498, 0.6854793518118913, 0.6873917251376706, 0.6913214705135405, 0.6930010462636261, 0.6892947926267271, 0.6618038165708974, 0.0, 0.0, 0.0, 0.0]
-# y_specular_LXe_hip= [0.001112165427732242, 0.0011263277428219362, 0.00120284458242256, 0.0014878128453774913, 0.00431818948159568, 0.028577408166662696, 0.0767039434227785, 0.1938216373997157, 0.40704522413508704, 0.6172302526293288, 0.7723284466198603, 1.0]#1.047912122232299]
-# y_total_LXe_hip = [sum(x) for x in zip(y_specular_LXe_hip,y_diffuse_LXe_hip)]
-# y_diffuse_LXe_hip2= [0.7116527697234036, 0.7138323922133201, 0.7167431409327432, 0.7206668394297263, 0.729091743241813, 0.7335885883463384, 0.7262823707645063, 0.6474078491699706, 0.0, 0.0, 0.0, 0.0]
-# y_specular_LXe_hip2=  [0.0016528720786998794, 0.0016884735251564945, 0.001857732976822431, 0.0024483848517261844, 0.009600045662265523, 0.06251613539473333, 0.13418304588129548, 0.25679333990263276, 0.4159533052261603, 0.5728408076108408, 0.7414240888009019, 1.0]#1.1194372218351034]
-# y_total_LXe_hip2 = [sum(x) for x in zip(y_specular_LXe_hip2,y_diffuse_LXe_hip2)]
+# print("Diffuse reflectances: ",y_diffuse)
+# print("Specular reflectances: ",y_specular)
 
-# # plt.plot(x, y_diffuse, label="diffuse") #52, 67, 75 (d->l)
-# # plt.plot(x, y_specular, label="specular")
-# # plt.plot(x, y_total, label="total")
-# plt.plot(x, y_specular_vacuum_before, label="specular, vacuum",linestyle='-',color='y')
-# plt.plot(x, y_specular_LXe_lowp, label="specular, 0.2 barg LXe",linestyle='-.',color='y')
-# #plt.plot(x, y_specular_LXe_lowp2, label="spec_lowp2")
-# plt.plot(x, y_specular_LXe_hip, label="specular, 1.45 barg LXe",linestyle='--',color='y')
-# #plt.plot(x, y_specular_LXe_hip2, label="spec_hip2")
-# plt.plot(x, y_diffuse_vacuum_before, label="diffuse, vacuum",linestyle='-',color='c')
-# plt.plot(x, y_diffuse_LXe_lowp, label="diffuse, 0.2 barg LXe",linestyle='-.',color='c')
-# #plt.plot(x, y_diffuse_LXe_lowp2, label="diff_lowp2")
-# #plt.plot(x, y_diffuse_LXe_hip, label="diffuse, 1.45 barg LXe",linestyle='--',color='c')
-# #plt.plot(x, y_diffuse_LXe_hip2, label="diff_hip2")
-# plt.plot(x, y_total_vacuum_before, label="total, vacuum",linestyle='-',color='b')
-# plt.plot(x, y_total_LXe_lowp, label="total, 0.2 barg LXe",linestyle='-.',color='b')
-# #plt.plot(x, y_total_LXe_lowp2, label="total_lowp2")
-# #plt.plot(x, y_total_LXe_hip, label="total, 1.45 barg LXe",linestyle='--',color='b')
-# #plt.plot(x, y_total_LXe_hip2, label="total_hip2")
-# # Line styles: '-', '--', '-.', ':'
+# # x_full=x[:]
+# # x_full.append(90)
+# # print(x, x_full)
+# # sin_th = np.array([np.sin(xx*np.pi/180.) for xx in x_full])
+# # d_th = np.array([10,10,10,15,10,5,5,5,5,5,5,5])*np.pi/180.
+# # y_diffuse_vacuum_before=[0.45766348181118743, 0.4580440040036757, 0.45840578569295093, 0.458373743496906, 0.45519279945081914, 0.4467776090150314, 0.4382352346643636, 0.42459365404619115, 0.4030226445070669, 0.3691595655515466, 0.31672576341572695, 0.23997195829098059]
+# # y_specular_vacuum_before=[0.06255417549996851, 0.06265684345501554, 0.06321515540210665, 0.06512830173742697, 0.07570232176333869, 0.09608785701329016, 0.11458965758798859, 0.14207103191906068, 0.1823613281476766, 0.240653361837574, 0.3259507169947907, 0.4865190393937654]
+# # y_total_vacuum_before = [sum(x) for x in zip(y_specular_vacuum_before,y_diffuse_vacuum_before)]
+# # y_total_vacuum_before_full = y_total_vacuum_before[:]
+# # y_total_vacuum_before_full.append(y_total_vacuum_before[-1])
+# # y_sky_vacuum_before_right = np.sum(sin_th[1:]*d_th*y_total_vacuum_before_full[1:])
+# # y_sky_vacuum_before_left = np.sum(sin_th[:-1]*d_th*y_total_vacuum_before_full[:-1])
+# # print("White sky reflectance, vacuum before, low est: ",y_sky_vacuum_before_left)
+# # print("White sky reflectance, vacuum before, high est: ",y_sky_vacuum_before_right)
+# # y_diffuse_LXe_lowp=[0.6570412916757591, 0.6579357341415137, 0.6591016792259574, 0.6606138318516783, 0.6633688576680011, 0.6626957378115929, 0.6549616061782121, 0.6062281312066095, 0.0, 0.0, 0.0, 0.0]
+# # y_specular_LXe_lowp= [0.0014054544422652119, 0.0014218233642250282, 0.0015141490462703899, 0.0018695965399099326, 0.0057283880366878585, 0.03827531730547219, 0.09984977500055535, 0.25165997130973317, 0.5000189208911733, 0.6960823791225147, 0.8249335365771578, 1.0]#1.0750904931429557]
+# # y_total_LXe_lowp = [sum(x) for x in zip(y_specular_LXe_lowp,y_diffuse_LXe_lowp)]
+# # y_total_LXe_lowp_full = y_total_LXe_lowp[:]
+# # y_total_LXe_lowp_full.append(y_total_LXe_lowp[-1])
+# # y_sky_LXe_lowp_right = np.sum(sin_th[1:]*d_th*y_total_LXe_lowp_full[1:])
+# # y_sky_LXe_lowp_left = np.sum(sin_th[:-1]*d_th*y_total_LXe_lowp_full[:-1])
+# # print("White sky reflectance, LXe 0.2 barg, low est: ",y_sky_LXe_lowp_left)
+# # print("White sky reflectance, LXe 0.2 barg, high est: ",y_sky_LXe_lowp_right)
+# # y_diffuse_LXe_lowp2= [0.7402398286291142, 0.7417007202832876, 0.7436238363017107, 0.7461638687993092, 0.7512130151093066, 0.752163989934962, 0.7433876636862394, 0.6765365007371161, 0.0, 0.0, 0.0, 0.0]
+# # y_specular_LXe_lowp2= [0.001527762931549758, 0.0015516293860655497, 0.0016747374647144962, 0.0021276141278918324, 0.007227369888786746, 0.04961757416725003, 0.11917259018207207, 0.2626128326744476, 0.4667668545228056, 0.6430628471896185, 0.7907470379047791, 1.0]#1.0997835008723356]
+# # y_total_LXe_lowp2 = [sum(x) for x in zip(y_specular_LXe_lowp2,y_diffuse_LXe_lowp2)]
+# # y_diffuse_LXe_hip= [0.6829307222870662, 0.6840336258528498, 0.6854793518118913, 0.6873917251376706, 0.6913214705135405, 0.6930010462636261, 0.6892947926267271, 0.6618038165708974, 0.0, 0.0, 0.0, 0.0]
+# # y_specular_LXe_hip= [0.001112165427732242, 0.0011263277428219362, 0.00120284458242256, 0.0014878128453774913, 0.00431818948159568, 0.028577408166662696, 0.0767039434227785, 0.1938216373997157, 0.40704522413508704, 0.6172302526293288, 0.7723284466198603, 1.0]#1.047912122232299]
+# # y_total_LXe_hip = [sum(x) for x in zip(y_specular_LXe_hip,y_diffuse_LXe_hip)]
+# # y_diffuse_LXe_hip2= [0.7116527697234036, 0.7138323922133201, 0.7167431409327432, 0.7206668394297263, 0.729091743241813, 0.7335885883463384, 0.7262823707645063, 0.6474078491699706, 0.0, 0.0, 0.0, 0.0]
+# # y_specular_LXe_hip2=  [0.0016528720786998794, 0.0016884735251564945, 0.001857732976822431, 0.0024483848517261844, 0.009600045662265523, 0.06251613539473333, 0.13418304588129548, 0.25679333990263276, 0.4159533052261603, 0.5728408076108408, 0.7414240888009019, 1.0]#1.1194372218351034]
+# # y_total_LXe_hip2 = [sum(x) for x in zip(y_specular_LXe_hip2,y_diffuse_LXe_hip2)]
+
+# plt.plot(x, y_diffuse, label="diffuse")
+# plt.plot(x, y_specular, label="specular")
+# plt.plot(x, y_total, label="total")
+# # plt.plot(x, y_specular_vacuum_before, label="specular, vacuum",linestyle='-',color='y')
+# # plt.plot(x, y_specular_LXe_lowp, label="specular, 0.2 barg LXe",linestyle='-.',color='y')
+# # #plt.plot(x, y_specular_LXe_lowp2, label="spec_lowp2")
+# # plt.plot(x, y_specular_LXe_hip, label="specular, 1.45 barg LXe",linestyle='--',color='y')
+# # #plt.plot(x, y_specular_LXe_hip2, label="spec_hip2")
+# # plt.plot(x, y_diffuse_vacuum_before, label="diffuse, vacuum",linestyle='-',color='c')
+# # plt.plot(x, y_diffuse_LXe_lowp, label="diffuse, 0.2 barg LXe",linestyle='-.',color='c')
+# # #plt.plot(x, y_diffuse_LXe_lowp2, label="diff_lowp2")
+# # #plt.plot(x, y_diffuse_LXe_hip, label="diffuse, 1.45 barg LXe",linestyle='--',color='c')
+# # #plt.plot(x, y_diffuse_LXe_hip2, label="diff_hip2")
+# # plt.plot(x, y_total_vacuum_before, label="total, vacuum",linestyle='-',color='b')
+# # plt.plot(x, y_total_LXe_lowp, label="total, 0.2 barg LXe",linestyle='-.',color='b')
+# # #plt.plot(x, y_total_LXe_lowp2, label="total_lowp2")
+# # #plt.plot(x, y_total_LXe_hip, label="total, 1.45 barg LXe",linestyle='--',color='b')
+# # #plt.plot(x, y_total_LXe_hip2, label="total_hip2")
+# # # Line styles: '-', '--', '-.', ':'
 
 # plt.xlabel("incident angle (degrees)")
 # plt.ylabel("reflectance (fraction)")
