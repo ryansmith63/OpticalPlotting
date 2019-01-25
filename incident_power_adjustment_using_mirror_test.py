@@ -2,20 +2,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 from file_reader import Run
 from plotting import plot_runs
-
+#TODO compare with 30 rather than with power measurement, don't change within 5 percent
 mirror_path = "Vacuum measurements after 3rd xenon run/Jan 9-12/Mirror alignment/Blue height 2/"
 
 # must be in ascending angle order
 mirror_filenames_and_angles = [
-mirror_path + "2019_01_10__15_47_56.txt",
-[
 [30., mirror_path + "2019_01_10__16_03_43.txt"],
 [45., mirror_path + "2019_01_10__16_01_50.txt"],
 [52., mirror_path + "2019_01_10__16_00_07.txt"],
 [60., mirror_path + "2019_01_10__15_58_07.txt"],
 [67., mirror_path + "2019_01_10__15_56_24.txt"],
 [75., mirror_path + "2019_01_10__15_53_05.txt"]
-]]
+]
 
 path = "Vacuum measurements after 3rd xenon run/Jan 9-12/LUX/178nm/"
 

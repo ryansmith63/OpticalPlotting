@@ -3,19 +3,48 @@ import matplotlib.pyplot as plt
 
 path = "/Users/leehagaman/Desktop/OpticalPlotting/"
 #path = "C:\\Users\\swkra\\OneDrive\\Documents\\GitHub\\OpticalPlotting\\"
-
+#path = "/global/homes/r/rjsmith/OpticalPlotting/"
+beam_bkg_filename = "Vacuum measurements after 3rd xenon run/Jan 14/Background/500nm/2019_01_14__15_54_21.txt"
+beam_bkg_file = open(path + beam_bkg_filename)
 class Run:
-	def __init__(self, filename, mirror_filenames_and_angles=[]):
+	def __init__(self, filename, mirror_filenames_and_angles=[], use_flat_bkg = False):
 		file = open(path + filename)
 		lines = file.readlines()
 		data = np.loadtxt(path + filename, skiprows=12)
-		self.angles = [datum[0] for datum in data]
-		bkg = 70 # constant background from e.g. dark rate; 500 for initial Spectralon 400 nm data, 100 for 500 nm data
+		flat_bkg = 10 # constant background from e.g. dark rate; 500 for initial Spectralon 400 nm data, 100 for 500 nm data
 		# chosen to be slightly less than lowest rate during background measurement in LXe
-		# Have been using 70 for 1st/2nd run LXe data at 178 nm, 150 for vacuum data at 178/175 nm
-		self.intensities = [datum[1]-bkg for datum in data]
+		self.incidentpower = float(lines[8][16:-1])
+		beam_bkg_filename = "Vacuum measurements after 3rd xenon run/Jan 14/Background/500nm/2019_01_14__15_54_21.txt" #background with beam on goes here
+		beam_bkg_file = open(path + beam_bkg_filename)
+		beam_bkg_lines = beam_bkg_file.readlines()
+		beam_bkg_data = np.loadtxt(beam_bkg_filename,skiprows = 12)
+		self.beam_bkg_intensities = np.array([datum[1] for datum in beam_bkg_data])
+		self.beam_bkg_angles = np.array([datum[0] for datum in beam_bkg_data])
+		self.beam_bkg_incidentpower = float(beam_bkg_lines[8][16:-1])
+		dark_bkg_filename = "Vacuum measurements after 3rd xenon run/Jan 14/Background/no beam/2019_01_14__13_28_17.txt" #background with beam off goes here
+		dark_bkg_file = open(dark_bkg_filename)
+		dark_bkg_data = np.loadtxt(dark_bkg_filename,skiprows = 12)
+		self.dark_bkg_intensities = np.array([datum[1] for datum in dark_bkg_data])
+		self.dark_bkg_angles = np.array([datum[0] for datum in dark_bkg_data])
+		bkg = self.dark_bkg_intensities #use this to subtract background with beam off
+        #(self.beam_bkg_intensities-self.dark_bkg_intensities)*(self.incidentpower/self.beam_bkg_incidentpower) +self.dark_bkg_intensities
+        #use above to subtract total background 
+		self.angles = [datum[0] for datum in data]
+		self.incidentangle = float(lines[7][16:-1])
+		self.bkg = []        
+		for i in range(len(data)):
+			self.bkg.append(bkg[int(round(self.beam_bkg_angles[-1]-1-(data[i][0]+self.incidentangle-90)))])
+		intensitylist = []
+		for i in range(len(data)):
+			intensitylist.append(data[i][1]-self.bkg[i])
+		if use_flat_bkg == False:
+			self.intensities = intensitylist
+		else:
+			self.intensities = [datum[1]-flat_bkg for datum in data]
+#		for i in range(len(self.intensities)):
+#			if self.intensities[i]<0:
+#				self.intensities[i] = 1
 		self.intensity_std = [datum[2] for datum in data]
-
 		self.date_time = lines[1][15:]
 		self.name = lines[2][6:]
 		self.description = lines[3][13:]
@@ -29,7 +58,7 @@ class Run:
 		self.temperature = float(lines[10][13:-1])
 		self.pressure = float(lines[11][10:-1])
 		self.relative_intensities = [intensity*intensity_factor(self.incidentpower) for intensity in self.intensities]
-		const_err = 300 # error to add to std from e.g. error on background; using 300 for 1st/2nd run LXe data at 178 nm, 100 for vacuum at 178/175 nm
+		const_err = 10 # error to add to std from e.g. error on background
 		self.relative_std = [(std+const_err)*intensity_factor(self.incidentpower) for std in self.intensity_std]
 
 		self.rot_angles = [180. - self.incidentangle - a for a in self.angles]
@@ -47,44 +76,41 @@ class Run:
 		# Changes incidentangle, angles, and angles in independent_variables_array; does not change rot_angles (which should be fixed)
 		delta_theta = new_theta_i-self.incidentangle
 		self.angles = [angle-delta_theta for angle in self.angles] # If incident angle increases, angles relative to normal decrease
-		self.independent_variables_array = [[list[0]-delta_theta]+list[1:] for list in self.independent_variables_array]
+		self.independent_variables_array = [[list[0]-delta_theta,list[1],new_theta_i]+list[3:] for list in self.independent_variables_array]
 		self.incidentangle = new_theta_i
+
+
+def get_max_intensity(filename):
+	data = np.loadtxt(path + filename, skiprows=12)
+	intensities = [datum[1] for datum in data]
+	return np.max(intensities)
+
 
 # this uses a mirror test to see how much of the beam power is lost at a certain incident angle, presumably
 # due to the beam missing part of the sample and hitting the sample rack or back of the chamber. So this should be
-# a different file for each incident angle and change in alignment of the sample rack. This file must have an accurate
-# incident power stored in the file.
-def incident_power_factor(mirror_incident_power, mirror_filename):
-	mirror_data = np.loadtxt(path + mirror_filename, skiprows=12)
-
-	mirror_intensities = [datum[1] for datum in mirror_data]
-	max_mirror_intensity = np.max(mirror_intensities)
-
-	return max_mirror_intensity / mirror_incident_power
-
-
+# a different file for each incident angle and change in alignment of the sample rack. 
+# uses a mirror_incident_power usually received from the 30 degree mirror test
 # takes in an incident power file and a list of pairs of incident angles and mirror test filenames,
 # returns a list of pairs of incident angles and incident power factors
-def incident_power_factor_list(mirror_incident_power_filename, mirror_incident_angle_and_filename_list):
-	mirror_incident_power_data = np.loadtxt(path + mirror_incident_power_filename, skiprows=12)
-	mirror_incident_power_intensities = [datum[1] for datum in mirror_incident_power_data]
-	mirror_incident_power = np.max(mirror_incident_power_intensities)
+# assumes it is sorted by incident angles, so the first one is the one which others are compared to
+def incident_power_factor_list(mirror_incident_angle_and_filename_list):
+	incident_angle_list = [pair[0] for pair in mirror_incident_angle_and_filename_list]
+	filename_list = [pair[1] for pair in mirror_incident_angle_and_filename_list]
 
-	lst = []
+	base_incident_power = get_max_intensity(mirror_incident_angle_and_filename_list[0][1]) #usually the power from the 30 degree mirror measurement
+	max_intensity_list = [get_max_intensity(file) for file in filename_list]
+	noisy_power_factor_list = [x / base_incident_power for x in max_intensity_list]
+	power_factor_list = [1 if 0.95 < x < 1.05 else x for x in noisy_power_factor_list] # so that nearly constant powers don't add noise
 
-	for i in range(len(mirror_incident_angle_and_filename_list)):
-		lst.append([mirror_incident_angle_and_filename_list[i][0], 
-			incident_power_factor(mirror_incident_power, mirror_incident_angle_and_filename_list[i][1])])
-	return lst
+	return [[incident_angle_list[i], power_factor_list[i]] for i in range(len(power_factor_list))]
+
 
 # retuns a function which gives incident power factor as a function of incident angle by interpolating between the points in incident_power_factor_list
-def incident_power_factor_function(mirror_filenames_and_angles):
-	if mirror_filenames_and_angles == []:
-		return lambda x : 1
-	mirror_incident_power_filename = mirror_filenames_and_angles[0]
-	mirror_incident_angle_and_filename_list = mirror_filenames_and_angles[1]
+def incident_power_factor_function(mirror_incident_angle_and_filename_list):
+	if mirror_incident_angle_and_filename_list == []:
+		return lambda x : 1.
 
-	lst = incident_power_factor_list(mirror_incident_power_filename, mirror_incident_angle_and_filename_list)
+	lst = incident_power_factor_list(mirror_incident_angle_and_filename_list)
 	angles = [pair[0] for pair in lst]
 	factors = [pair[1] for pair in lst]
 	def ret(theta):
@@ -94,7 +120,7 @@ def incident_power_factor_function(mirror_filenames_and_angles):
 			return factors[-1]
 		for i in range(len(lst)):
 			if angles[i] <= theta < angles[i + 1]:
-				return factors[i] + (angles[i + 1] - angles[i]) * (factors[i + 1] - factors[i]) / (angles[i + 1] - angles[i]) # interpolating
+				return factors[i] + (theta - angles[i]) * (factors[i + 1] - factors[i]) / (angles[i + 1] - angles[i]) # interpolating
 		print("error, failed to interpolate")
 		return 0 #failed to interpolate, should never happen
 	return ret
@@ -109,7 +135,7 @@ def intensity_factor(incidentpower):
 	# for 400 nm, bkg of 500, err of 100 (closer match to background measurement at 405 nm, similar power), get 2.44
 	# for 500 nm, bkg of 100, err of 100 (closer match to bkg at 500 nm when scaled by power, but taken a month later), get 2.61
 	# for 500 nm, bkg of 150, err of 100 (background at 405 nm from same day, but scaled by power), get 2.54
-	photodiode_angular_radius = 2.44 #degrees; old plots used 4.0 incorrectly
+	photodiode_angular_radius = 2.15 #degrees; old plots used 4.0 incorrectly
 	photodiode_angular_size = photodiode_angular_radius * np.pi / 180.
 
 	photodiode_solid_angle = np.pi * np.power(photodiode_angular_size, 2)
