@@ -1,0 +1,23 @@
+Data Saved Successfully
+Date and Time: 2018_11_26__16_21_21
+Name: Power measurement
+Description: Preparing for mirror alignment test; LXe column and outer chamber evacuated,using monochromator, slit at 1.00, PMT height 0.95, aperture 0.385,changed dial at mirror test to 81 degrees, moved rotation stage about .1" towards computer side of table, testing new dial angle after moving rotation stage, rezeroed PMT (+1.5 degrees)
+Substance: vacuum
+Sample ID: -1
+Preamp Sensitivity: 100.000000
+Incident Angle: 90.000000
+Incident Power: -1.000000
+Wavelength: 400.000000
+Temperature: 300.000000
+Pressure: 1.013000
+95.000000	985573.726284	32672.612352
+94.750000	1000130.076130	39885.142016
+94.500000	1003691.082952	44696.005203
+94.250000	998382.712547	29149.863694
+94.000000	990978.162637	37990.693595
+93.750000	1000299.346346	35727.697456
+93.500000	982578.490306	33597.794294
+93.250000	995795.761217	41964.560241
+93.000000	1007322.267210	39262.654515
+92.750000	992991.845191	31831.944643
+92.500000	993215.852905	32394.826430

@@ -1,0 +1,23 @@
+Data Saved Successfully
+Date and Time: 2018_08_28__16_08_40
+Name: Angle calibration, 45 deg, 175 nm
+Description: shortened sample rack parts and reinstalled; slit width at 0.59; using log scale, long time constant; 500 ms wait time, 50 avgs, using median instead of mean; rate uses updated calibration and deadtime correction
+Substance: vacuum
+Sample ID: -2
+Preamp Sensitivity: 100.000000
+Incident Angle: 90.000000
+Incident Power: 962000.000000
+Wavelength: 175.000000
+Temperature: 300.000000
+Pressure: 1.013000
+10.000000	147723.567248	4078.799782
+9.500000	183642.502756	7052.693253
+9.000000	218409.327856	8462.917387
+8.500000	236645.320390	8129.624433
+8.000000	232590.046283	8229.619120
+7.500000	203247.191178	5752.925293
+7.000000	162168.560305	7000.231671
+6.500000	118088.528402	4695.356549
+6.000000	85273.012558	4076.736420
+5.500000	48273.371056	1910.968754
+5.000000	13635.051270	468.470496

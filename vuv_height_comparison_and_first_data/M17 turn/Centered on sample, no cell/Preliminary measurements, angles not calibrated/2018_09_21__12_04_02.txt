@@ -1,0 +1,20 @@
+Data Saved Successfully
+Date and Time: 2018_09_21__12_04_02
+Name: Power measurement
+Description: no cell or lens, slit at 0.79; using log scale, long time constant; 500 ms wait time, 50 avgs, using median instead of mean; rate uses updated calibration and deadtime correction
+Substance: vacuum
+Sample ID: -1
+Preamp Sensitivity: 100.000000
+Incident Angle: 90.000000
+Incident Power: -1.000000
+Wavelength: 175.000000
+Temperature: 300.000000
+Pressure: 1.013000
+95.000000	11.870347	1.657063
+94.750000	11.846146	1.666261
+94.500000	11.906736	1.721364
+94.250000	10.683155	1.514093
+94.000000	11.439495	1.729400
+93.750000	11.737821	1.717162
+93.500000	11.606701	1.656624
+93.250000	13.104826	1.954381

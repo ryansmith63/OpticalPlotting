@@ -1,0 +1,22 @@
+Data Saved Successfully
+Date and Time: 2018_08_30__11_11_17
+Name: Testing alignment, M18 polished
+Description: checking reflectance at 45 deg; slit width at 0.59; using log scale, long time constant; 500 ms wait time, 50 avgs, using median instead of mean; rate uses updated calibration and deadtime correction
+Substance: vacuum
+Sample ID: 8
+Preamp Sensitivity: 100.000000
+Incident Angle: 90.000000
+Incident Power: 955000.000000
+Wavelength: 175.000000
+Temperature: 300.000000
+Pressure: 1.013000
+2.000000	1438.061561	49.535859
+1.000000	1571.183508	42.668402
+0.000000	1650.082239	54.963183
+-1.000000	1969.242601	80.576065
+-2.000000	2188.748712	86.237638
+-3.000000	2536.406315	104.460865
+-4.000000	3069.340808	74.647169
+-5.000000	3633.127680	120.219181
+-6.000000	4231.293345	169.731113
+-7.000000	4836.846026	235.526955

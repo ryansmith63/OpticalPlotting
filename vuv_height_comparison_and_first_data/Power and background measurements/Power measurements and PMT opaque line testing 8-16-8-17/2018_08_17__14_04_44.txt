@@ -1,0 +1,34 @@
+Data Saved Successfully
+Date and Time: 2018_08_17__14_04_44
+Name: Power and background measurement, lamp on, lights turned off
+Description: Testing if spikes are from lamp
+Aperture at 0.288" (3 deg), PMT at 1100V, doing measurements in air, added lots of foil to collimator attaching to walls of chamber, testing again to see if dark rate and spike positions change
+Substance: air
+Sample ID: -1
+Preamp Sensitivity: 100.000000
+Incident Angle: 90.000000
+Incident Power: 270000.000000
+Wavelength: 405.000000
+Temperature: 300.000000
+Pressure: 1.013000
+5.000000	162.036135
+4.500000	165.936317
+4.000000	171.204098
+3.500000	167.172435
+3.000000	170.969905
+2.500000	186.167978
+2.000000	258.681729
+1.500000	250.541845
+1.000000	187.890182
+0.500000	169.404361
+0.000000	162.042417
+-0.500000	168.574155
+-1.000000	168.779777
+-1.500000	160.910040
+-2.000000	162.798262
+-2.500000	151.056739
+-3.000000	146.669560
+-3.500000	160.180444
+-4.000000	155.887423
+-4.500000	216.326478
+-5.000000	193.003785

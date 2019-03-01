@@ -1,0 +1,23 @@
+Data Saved Successfully
+Date and Time: 2018_08_28__13_57_49
+Name: Power vs mirror angle, 75 deg, 405 nm
+Description: shortened sample rack parts and reinstalled; slit width at 0.59; using log scale, long time constant; 500 ms wait time, 50 avgs, using median instead of mean; rate uses updated calibration and deadtime correction
+Substance: vacuum
+Sample ID: -3
+Preamp Sensitivity: 100.000000
+Incident Angle: 90.000000
+Incident Power: 195000.000000
+Wavelength: 405.000000
+Temperature: 300.000000
+Pressure: 1.013000
+65.000000	114098.953149	4470.644094
+64.500000	107923.751903	4371.595387
+64.000000	111472.614063	4155.387191
+63.500000	113425.977366	3526.959280
+63.000000	93960.790687	3708.040600
+62.500000	60734.340141	2611.066838
+62.000000	27093.889200	1254.337693
+61.500000	13526.153669	461.375058
+61.000000	12194.739393	490.020121
+60.500000	10949.417017	429.843465
+60.000000	8459.543219	338.299846

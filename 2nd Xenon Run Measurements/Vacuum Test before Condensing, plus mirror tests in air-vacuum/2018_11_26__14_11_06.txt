@@ -1,0 +1,33 @@
+Data Saved Successfully
+Date and Time: 2018_11_26__14_11_06
+Name: Mirror alignment
+Description: Preparing for mirror alignment test; LXe column evacuated and outer chamber open, letting in light through top of monochromator, slit at 0.61, PMT height 0.95, aperture 0.385,changed dial at mirror test to 82 degrees, moved rotation stage about .1" towards computer side of table, trying to find new dial angle after moving rotation stage (trying out 81 on dial for 45 degree incident angle)
+Substance: vacuum
+Sample ID: -2
+Preamp Sensitivity: 100.000000
+Incident Angle: 60.000000
+Incident Power: -1.000000
+Wavelength: 400.000000
+Temperature: 300.000000
+Pressure: 1.013000
+65.000000	6207.584851	252.226831
+64.500000	3230.554169	108.741370
+64.000000	1303.922781	56.193435
+63.500000	772.780837	17.113583
+63.000000	579.941458	10.341604
+62.500000	470.183107	20.350075
+62.000000	433.582112	9.535561
+61.500000	384.329155	9.123298
+61.000000	359.799268	10.735824
+60.500000	325.020058	6.455013
+60.000000	333.418722	8.264796
+59.500000	325.622732	6.453852
+59.000000	325.622732	5.382786
+58.500000	368.341055	1646.757503
+58.000000	6013.279475	6101.373638
+57.500000	766.391443	23.875628
+57.000000	541.073174	16.618723
+56.500000	501.832822	32.345755
+56.000000	417.633581	26.295419
+55.500000	368.134916	11.516611
+55.000000	351.776155	8.835532

@@ -1,0 +1,24 @@
+Data Saved Successfully
+Date and Time: 2018_08_28__16_45_46
+Name: Angle calibration, 45 deg, 405 nm
+Description: setting top alignment piece to near 0 force; shortened sample rack parts and reinstalled; slit width at 0.59; using log scale, long time constant; 500 ms wait time, 50 avgs, using median instead of mean; rate uses updated calibration and deadtime correction
+Substance: vacuum
+Sample ID: -2
+Preamp Sensitivity: 100.000000
+Incident Angle: 90.000000
+Incident Power: -1.000000
+Wavelength: 405.000000
+Temperature: 300.000000
+Pressure: 1.013000
+5.000000	156125.738208	5811.067714
+4.500000	156731.348321	6848.463285
+4.000000	141640.281175	5441.402356
+3.500000	109067.048858	4336.172830
+3.000000	82095.671856	3495.408442
+2.500000	62460.748745	2419.824677
+2.000000	35573.237777	1195.006444
+1.500000	8484.769810	311.844200
+1.000000	1899.459526	63.912284
+0.500000	1492.211404	31.028884
+0.000000	1351.504427	28.238445
+-0.500000	1158.341331	38.044785

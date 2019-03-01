@@ -1,0 +1,20 @@
+Recovered Data (program stopped early)
+Date and Time: 2018_09_21__16_47_21
+Name: M17 turn 60
+Description: checking for bump around 37 degrees seen in previous data; slit at 0.58, no lens, no cell, updated dial angles (148.5 for 90) this one at 178.5
+Substance: vacuum
+Sample ID: 2
+Preamp Sensitivity: 100.000000
+Incident Angle: 45.000000
+Incident Power: 1046180.000000
+Wavelength: 175.000000
+Temperature: 300.000000
+Pressure: 1.013000
+85.000000	12.033709	0.000000
+84.000000	12.033709	0.000000
+83.000000	12.033709	0.000000
+82.000000	12.033709	0.000000
+81.000000	12.033709	0.000000
+80.000000	12.033709	0.000000
+79.000000	12.033709	0.000000
+78.000000	12.033709	0.000000

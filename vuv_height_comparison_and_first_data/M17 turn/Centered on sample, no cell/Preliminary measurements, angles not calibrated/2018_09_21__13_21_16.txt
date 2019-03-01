@@ -1,0 +1,22 @@
+Data Saved Successfully
+Date and Time: 2018_09_21__13_21_16
+Name: Power measurement, reverse order
+Description: checking for fluorescence, slit opened up to 1.8; added a quartz lens to attenuate UV; using log scale, long time constant; 500 ms wait time, 50 avgs, using median instead of mean; rate uses updated calibration and deadtime correction
+Substance: air
+Sample ID: -1
+Preamp Sensitivity: 100.000000
+Incident Angle: 90.000000
+Incident Power: -1.000000
+Wavelength: 405.000000
+Temperature: 300.000000
+Pressure: 1.013000
+95.000000	370983.189960	11500.926754
+94.500000	371665.090480	13846.940325
+94.000000	374339.227000	13366.513159
+93.500000	380932.854192	14809.288788
+93.000000	372350.302265	12472.095794
+92.500000	376964.063796	14235.626072
+92.000000	377448.776054	15158.822507
+91.500000	376201.856931	14231.653899
+91.000000	376338.815369	15826.579148
+90.500000	374684.147491	13687.862990
