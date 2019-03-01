@@ -6,7 +6,7 @@ Substance: vacuum
 Sample ID: -1
 Preamp Sensitivity: 100.000000
 Incident Angle: 90.000000
-Incident Power: -1.000000
+Incident Power: 999340.000000
 Wavelength: 178.000000
 Temperature: 300.000000
 Pressure: 1.013000
