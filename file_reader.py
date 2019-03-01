@@ -1,38 +1,79 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-path = "/Users/leehagaman/Desktop/OpticalPlotting/"
+#path = "/Users/leehagaman/Desktop/OpticalPlotting/"
 #path = "C:\\Users\\swkra\\OneDrive\\Documents\\GitHub\\OpticalPlotting\\"
-#path = "/global/homes/r/rjsmith/OpticalPlotting/"
-beam_bkg_filename = "Vacuum measurements after 3rd xenon run/Jan 14/Background/500nm/2019_01_14__15_54_21.txt"
-beam_bkg_file = open(path + beam_bkg_filename)
+path = "/global/homes/r/rjsmith/OpticalPlotting/"
+mirrors = [[30,"Vacuum measurements after 3rd xenon run/Jan 9-12/Mirror alignment/Blue height 2/2019_01_10__16_03_43.txt"],
+           [45,"Vacuum measurements after 3rd xenon run/Jan 9-12/Mirror alignment/Blue height 2/2019_01_10__16_01_50.txt"],
+           [52,"Vacuum measurements after 3rd xenon run/Jan 9-12/Mirror alignment/Blue height 2/2019_01_10__16_00_07.txt"],
+           [60,"Vacuum measurements after 3rd xenon run/Jan 9-12/Mirror alignment/Blue height 2/2019_01_10__15_58_07.txt"],
+           [67,"Vacuum measurements after 3rd xenon run/Jan 9-12/Mirror alignment/Blue height 2/2019_01_10__15_56_24.txt"],
+           [75,"Vacuum measurements after 3rd xenon run/Jan 9-12/Mirror alignment/Blue height 2/2019_01_10__15_53_05.txt"]]
+
+
+###First Xe run
+#[[30,"First Xe Run Measurements/Mirror alignment checks 10-29/2018_10_29__09_33_56.txt"],
+#[45,"First Xe Run Measurements/Mirror alignment checks 10-29/2018_10_29__09_31_00.txt"],
+#[60,"First Xe Run Measurements/Mirror alignment checks 10-29/2018_10_29__09_25_03.txt"],
+#[75,"First Xe Run Measurements/Mirror alignment checks 10-29/2018_10_29__09_45_18.txt"]]
+
+###August 29
+#[[30,"vuv_height_comparison_and_first_data/Mirror tests and angle calibration/2018_08_29__14_27_59.txt"],
+#[45,"vuv_height_comparison_and_first_data/Mirror tests and angle calibration/2018_08_29__14_25_08.txt"],
+#[60,"vuv_height_comparison_and_first_data/Mirror tests and angle calibration/2018_08_29__14_21_57.txt"],
+#[75,"vuv_height_comparison_and_first_data/Mirror tests and angle calibration/2018_08_29__14_18_18.txt"]]
+
+###After 3rd run
+#[[30,"Vacuum measurements after 3rd xenon run/Jan 9-12/Mirror alignment/Blue height 2/2019_01_10__16_03_43.txt"],
+#[45,"Vacuum measurements after 3rd xenon run/Jan 9-12/Mirror alignment/Blue height 2/2019_01_10__16_01_50.txt"],
+#[52,"Vacuum measurements after 3rd xenon run/Jan 9-12/Mirror alignment/Blue height 2/2019_01_10__16_00_07.txt"],
+#[60,"Vacuum measurements after 3rd xenon run/Jan 9-12/Mirror alignment/Blue height 2/2019_01_10__15_58_07.txt"],
+#[67,"Vacuum measurements after 3rd xenon run/Jan 9-12/Mirror alignment/Blue height 2/2019_01_10__15_56_24.txt"],
+#[75,"Vacuum measurements after 3rd xenon run/Jan 9-12/Mirror alignment/Blue height 2/2019_01_10__15_53_05.txt"]]
+
+###2/20/19
+#[[30,"Vacuum measurements 2-20-19/Mirror alignment/2019_02_20__10_13_38.txt"],
+#[45,"Vacuum measurements 2-20-19/Mirror alignment/2019_02_20__10_11_21.txt"],
+#[52,"Vacuum measurements 2-20-19/Mirror alignment/2019_02_20__10_08_40.txt"],
+#[60,"Vacuum measurements 2-20-19/Mirror alignment/2019_02_20__10_05_51.txt"],
+#[67,"Vacuum measurements 2-20-19/Mirror alignment/2019_02_20__10_03_30.txt"],
+#[75,"Vacuum measurements 2-20-19/Mirror alignment/2019_02_20__10_01_22.txt"]]
 
 class Run:
-	def __init__(self, filename, mirror_filenames_and_angles=[], use_flat_bkg = False):
+	def __init__(self, filename, mirror_filenames_and_angles=mirrors, use_flat_bkg = False):
 		file = open(path + filename)
 		lines = file.readlines()
 		data = np.loadtxt(path + filename, skiprows=12)
-		flat_bkg = 70#100 # constant background from e.g. dark rate; 500 for initial Spectralon 400 nm data, 100 for 500 nm data
+		flat_bkg = 150 # constant background from e.g. dark rate; 500 for initial Spectralon 400 nm data, 100 for 500 nm data
 		# chosen to be slightly less than lowest rate during background measurement in LXe
 		# Have been using 70 for 1st/2nd run LXe data at 178 nm, 150 for vacuum data at 178/175 nm
 		self.incidentpower = float(lines[8][16:-1])
-		beam_bkg_filename = "First Xe Run Measurements\\first measurements with no bubbles in cell 11-01-2\\Initial power and background at 178 nm\\2018_11_01__14_56_35.txt" #background with beam on goes here 
-		#"Vacuum measurements after 3rd xenon run/Jan 14/Background/500nm/2019_01_14__15_54_21.txt"
+		beam_bkg_filename = "vuv_height_comparison_and_first_data/Power and background measurements/2018_08_24__11_30_27.txt"
+        #"Vacuum measurements after 3rd xenon run/Jan 14/Background/500nm/2019_01_14__15_54_21.txt" 
+        #"First Xe Run Measurements\\first measurements with no bubbles in cell 11-01-2\\Initial power and background at 178 nm\\2018_11_01__14_56_35.txt" 
+        #background with beam on goes here 
 		beam_bkg_file = open(path + beam_bkg_filename)
 		beam_bkg_lines = beam_bkg_file.readlines()
 		beam_bkg_data = np.loadtxt(beam_bkg_filename,skiprows = 12)
 		self.beam_bkg_intensities = np.array([datum[1] for datum in beam_bkg_data])
 		self.beam_bkg_angles = np.array([datum[0] for datum in beam_bkg_data])
 		self.beam_bkg_incidentpower = float(beam_bkg_lines[8][16:-1])
-		# dark_bkg_filename = "Vacuum measurements after 3rd xenon run/Jan 14/Background/no beam/2019_01_14__13_28_17.txt" #background with beam off goes here
-		# dark_bkg_file = open(dark_bkg_filename)
-		# dark_bkg_data = np.loadtxt(dark_bkg_filename,skiprows = 12)
-		# self.dark_bkg_intensities = np.array([datum[1] for datum in dark_bkg_data])
-		# self.dark_bkg_angles = np.array([datum[0] for datum in dark_bkg_data])
-		bkg = self.beam_bkg_intensities*(self.incidentpower/self.beam_bkg_incidentpower)
-		#self.dark_bkg_intensities #use this to subtract background with beam off
+		dark_bkg_filename = "Vacuum measurements after 3rd xenon run/Jan 9-12/Background/No beam/2019_01_11__17_18_44.txt"
+        #"Vacuum measurements after 3rd xenon run/Jan 9-12/Background/No beam/2019_01_11__17_18_44.txt"
+        #"Vacuum measurements after 3rd xenon run/Jan 14/Background/no beam/2019_01_14__13_28_17.txt" 
+        #"Vacuum measurements 2-20-19/Background/Dark/2019_02_20__09_10_03.txt"
+        #background with beam off goes here
+        
+		dark_bkg_file = open(dark_bkg_filename)
+		dark_bkg_data = np.loadtxt(dark_bkg_filename,skiprows = 12)
+		self.dark_bkg_intensities = np.array([datum[1] for datum in dark_bkg_data])
+		self.dark_bkg_angles = np.array([datum[0] for datum in dark_bkg_data])
+		bkg = self.dark_bkg_intensities
         #(self.beam_bkg_intensities-self.dark_bkg_intensities)*(self.incidentpower/self.beam_bkg_incidentpower) +self.dark_bkg_intensities
         #use above to subtract total background 
+        #self.dark_bkg_intensities #use this to subtract background with beam off
+
 		self.angles = [datum[0] for datum in data]
 		self.incidentangle = float(lines[7][16:-1])
 		self.bkg = []        
@@ -45,9 +86,9 @@ class Run:
 			self.intensities = intensitylist
 		else:
 			self.intensities = [datum[1]-flat_bkg for datum in data]
-#		for i in range(len(self.intensities)):
-#			if self.intensities[i]<0:
-#				self.intensities[i] = 1
+		for i in range(len(self.intensities)):
+			if self.intensities[i]<0:
+				self.intensities[i] = 1
 		self.intensity_std = [datum[2] for datum in data]
 		
 		
@@ -64,9 +105,9 @@ class Run:
 		self.temperature = float(lines[10][13:-1])
 		self.pressure = float(lines[11][10:-1])
 		self.relative_intensities = [intensity*intensity_factor(self.incidentpower) for intensity in self.intensities]
-		const_err = 100 # error to add to std from e.g. error on background; using 300 for 1st/2nd run LXe data at 178 nm, 100 for vacuum at 178/175 nm
+		const_err = 20 # error to add to std from e.g. error on background; using 300 for 1st/2nd run LXe data at 178 nm, 100 for vacuum at 178/175 nm
 		self.relative_std = [(std+const_err)*intensity_factor(self.incidentpower) for std in self.intensity_std]
-		frac_err = 0# fraction of each reading to add as an error in quadrature
+		frac_err = 0.05# fraction of each reading to add as an error in quadrature
 		self.std_pct = [frac_err*rel_int for rel_int in self.relative_intensities]
 		self.relative_std = list(np.sqrt(np.array(self.std_pct)**2+np.array(self.relative_std)**2))
 
@@ -149,7 +190,7 @@ def intensity_factor(incidentpower):
 	# for 400 nm, bkg of 500, err of 100 (closer match to background measurement at 405 nm, similar power), get 2.44
 	# for 500 nm, bkg of 100, err of 100 (closer match to bkg at 500 nm when scaled by power, but taken a month later), get 2.61
 	# for 500 nm, bkg of 150, err of 100 (background at 405 nm from same day, but scaled by power), get 2.54
-	photodiode_angular_radius = 2.15 #degrees; old plots used 4.0 incorrectly
+	photodiode_angular_radius = 2. #degrees; old plots used 4.0 incorrectly
 	photodiode_angular_size = photodiode_angular_radius * np.pi / 180.
 
 	photodiode_solid_angle = np.pi * np.power(photodiode_angular_size, 2)
